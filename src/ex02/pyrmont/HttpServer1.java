@@ -1,4 +1,4 @@
-package ex01.pyrmont;
+package ex02.pyrmont;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,16 +8,15 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class HttpServer {
+public class HttpServer1 {
 	
-	public static final String WEB_ROOT=System.getProperty("user.dir")+File.separator+"webroot";//资源路径
 	
 	private static final String SHUTDOWN_COMMAND = "/SHUTDOWN";//终止命令  比如关闭浏览器可以停止上传下载等功能
 	
 	private boolean shutdown = false;//是否接收到停止的命令
 	  
 	  public static void main(String[] args) {
-		  HttpServer server=new HttpServer();
+		  HttpServer1 server=new HttpServer1();
 		  server.await();
 	}
 	  public void await(){
@@ -48,7 +47,17 @@ public class HttpServer {
 			  //创建一个响应对象
 			  Response response=new Response(output);
 			  response.setRequest(request);//根据请求来进行操作
-			  response.sendStaticResource();//发送请求的静态资源
+			  
+			  //检查是否是一个静态请求还是一个servlet请求
+			  if(request.getUri().startsWith("/servlet/")){
+				  ServletProcessor1 processor=new ServletProcessor1();
+				  processor.process(request, response);
+			  }else{
+				  StaticResourceProcessor processor=new StaticResourceProcessor();
+				  processor.process(request, response);
+			  }
+			  
+			  
 			  //关闭网络连接
 			  socket.close();
 			  
@@ -57,7 +66,7 @@ public class HttpServer {
 			  
 		} catch (IOException e) {			
 			e.printStackTrace();
-			continue;
+			System.exit(1);
 		}
 		  
 	  }

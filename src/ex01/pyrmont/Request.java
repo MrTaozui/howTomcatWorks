@@ -14,18 +14,18 @@ public class Request {
 	public void parse(){
 		StringBuffer request=new StringBuffer();
 		int i;
-		byte[] buffer=new byte[2048];
+		byte[] buffer=new byte[2048];//缓冲区读入数据  一次读不完 读入字节数组中 做缓冲
 		try {
-			i = input.read(buffer);
+			i = input.read(buffer);//传过来的二进制转为  字符
 		} catch (IOException e) {
 			e.printStackTrace();
 			i = -1;
 		}
 		for(int j=0;j<i;j++){
-			request.append(buffer[j]);
+			request.append((char)buffer[j]);
 		}
-		System.out.println(request.toString());
-		uri = parseUri(request.toString());
+		System.out.println(" 请求资源为："+request.toString());
+		this.uri = parseUri(request.toString());
 	}
 	private String parseUri(String requestString) {
 	    int index1, index2;
@@ -38,7 +38,7 @@ public class Request {
 	    return null;
 	  }
 	public String getUri() {
-		return uri;
+		return this.uri;
 	}
 	 public static void main(String[] args) {
 			String url= "GET /lalala HTTP/1.1";//http 请求的第一行
