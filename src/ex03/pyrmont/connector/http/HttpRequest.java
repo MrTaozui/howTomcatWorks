@@ -111,6 +111,46 @@ public class HttpRequest implements HttpServletRequest{
 			    catch (UnsupportedEncodingException e) {
 			      ;
 			    }
+		   String contentType = getContentType();
+		   if(contentType == null)
+			   contentType = "";
+		   int semicolon = contentType.indexOf(';');
+		   if (semicolon >= 0) {
+			      contentType = contentType.substring(0, semicolon).trim();
+			   }
+		    else {
+		        contentType = contentType.trim();
+		      }
+		    if ("POST".equals(getMethod()) && (getContentLength() > 0)
+		    	      && "application/x-www-form-urlencoded".equals(contentType)){
+		    	try {
+		    	int max = getContentLength();
+		    	int len = 0;
+		    	byte buf[] = new byte[getContentLength()];
+		    	ServletInputStream is = getInputStream();
+		    	while(len < max){
+		    		int next = is.read(buf, len, max - len);
+		    		if (next < 0) {
+		    			break;
+		    		}
+		    		len += next;
+		    	}
+		    	is.close();
+		        if (len < max) {
+		            throw new RuntimeException("Content length mismatch");
+		          }
+		        RequestUtil.parseParameters(results, buf, encoding);
+				} catch (UnsupportedEncodingException ue) {
+					;
+				}
+		    	catch (IOException e) {
+			        throw new RuntimeException("Content read fail");
+			      }
+		    }
+			  //存储最终的结果
+		    results.setLocked(true);
+		    parsed = true;
+		    parameters = results;
 		   
 		   
 		   
@@ -142,12 +182,12 @@ public class HttpRequest implements HttpServletRequest{
 
 	public int getContentLength() {
 		
-		return 0;
+		return contentLength;
 	}
 
 	public String getContentType() {
 		
-		return null;
+		return contentType;
 	}
 
 	public ServletInputStream getInputStream() throws IOException {
@@ -282,7 +322,7 @@ public class HttpRequest implements HttpServletRequest{
 
 	public String getMethod() {
 		
-		return null;
+		return method;
 	}
 
 	public String getPathInfo() {

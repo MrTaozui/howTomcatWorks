@@ -3,7 +3,9 @@ package org.apache.catalina.util;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.servlet.http.Cookie;
@@ -318,7 +320,7 @@ public final class RequestUtil{
         map.put(name, newValues);
     }
     /**
-     * 解码经过编码得url
+     * 解码经过编码得url获取请求参数
      * @param map
      * @param data
      * @param encoding
@@ -334,7 +336,7 @@ public final class RequestUtil{
             while(ix < data.length){
             	byte c = data[ix++];
             	switch((char) c){
-            	case '&':
+            	case '&':// 在遇到下一个'&' 之前 date存的就是value
             		value = new String(data, 0, ox, encoding);
             		if(key != null){
             			 putMapEntry(map, key, value);
@@ -343,14 +345,14 @@ public final class RequestUtil{
                     ox = 0;
                     break;
                     
-            	 case '=':
+            	 case '=':// key=value
                      key = new String(data, 0, ox, encoding);
                      ox = 0;
                      break;
-                 case '+':
+                 case '+'://URL 中+号表示空格      
                      data[ox++] = (byte)' ';
                      break;
-                 case '%':
+                 case '%'://%  指定特殊字符      中文等
                      data[ox++] = (byte)((convertHexDigit(data[ix++]) << 4)
                                      + convertHexDigit(data[ix++]));
                      break;
@@ -371,5 +373,16 @@ public final class RequestUtil{
     	
     	
     }
+    public static void main(String[] args) throws UnsupportedEncodingException {
+    	 ParameterMap results=new ParameterMap();
+		String s="rsv_spt=1&rsv_iqid=0xf6f4af8000002b6b&issp=1&f=3&rsv_bp=1&rsv_idx=2&ie=utf-8&rqlang=cn&tn=baiduhome_pg&rsv_enter=0&rsv_t=bcc5eVQo3f07JoLo%2FHBEbIwu1Nz%2FNmlCDh%2Fe87yERYXs5ViOjnO%2F%2FToABrixEf532LRr&oq=url%25E4%25B8%25AD%25E7%259A%2584%2526lt%253B%25E8%25BD%25AC%25E4%25B8%25AD%25E6%2596%2587&inputT=2064&rsv_pq=ee4574fa0001821a&rsv_sug3=152&rsv_sug1=155&rsv_sug7=100&prefixsug=url%25E4%25B8%25AD%25E7%259A%2584%2526lt%253B&rsp=0&rsv_sug4=2788&rsv_sug=1";
+		parseParameters(results,s.getBytes(),"ISO-8859-1");
+		
+		for (Object key : results.keySet()) { 
+			  System.out.println("Key = " + key+"  value"+Arrays.toString((String[])results.get(key.toString()))); 
+			} 
+		
+	}
+    
 
 }
