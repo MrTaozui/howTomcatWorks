@@ -10,16 +10,13 @@ import java.net.UnknownHostException;
 
 public class SocketDemo {
 	public static void main(String[] args) {
-		try {
-			Socket socket=new Socket("127.0.0.1",8080);
-			OutputStream os=socket.getOutputStream();
-			boolean autoflush=true;
-			PrintWriter out=new PrintWriter(socket.getOutputStream(),autoflush);
-			BufferedReader in=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		
-		}catch (IOException e) {
-			e.printStackTrace();
-		}
+		byte a =11;
+		System.out.println(convertHexDigit(a));
 	}
-
+    private static byte convertHexDigit( byte b ) {
+        if ((b >= '0') && (b <= '9')) return (byte)(b - '0');
+        if ((b >= 'a') && (b <= 'f')) return (byte)(b - 'a' + 10);
+        if ((b >= 'A') && (b <= 'F')) return (byte)(b - 'A' + 10);
+        return 0;
+    }
 }
