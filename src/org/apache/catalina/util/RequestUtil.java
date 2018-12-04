@@ -294,11 +294,14 @@ public final class RequestUtil{
     
     /**
      * 将字节字符值转换为十六进制数字值。
+     * 
+     * 字节值'0'-'9' 为 0-9
+     * 字节值'a'-'f' 或者 'A'-'F' 为 10-15
      */
     private static byte convertHexDigit( byte b ) {
-        if ((b >= '0') && (b <= '9')) return (byte)(b - '0');
-        if ((b >= 'a') && (b <= 'f')) return (byte)(b - 'a' + 10);
-        if ((b >= 'A') && (b <= 'F')) return (byte)(b - 'A' + 10);
+        if ((b >= '0') && (b <= '9')) return (byte)(b - '0');// (byte) '0' = 48 
+        if ((b >= 'a') && (b <= 'f')) return (byte)(b - 'a' + 10);// (byte) 'a' = 97
+        if ((b >= 'A') && (b <= 'F')) return (byte)(b - 'A' + 10);// (byte) 'A' = 65
         return 0;
     }
     
@@ -352,7 +355,7 @@ public final class RequestUtil{
                  case '+'://URL 中+号表示空格      
                      data[ox++] = (byte)' ';
                      break;
-                 case '%'://%  指定特殊字符      中文等
+                 case '%'://%   一般是遇到上不可显示的字符，会转义成 % + 数值的方式来显示。 unicode编码
                      data[ox++] = (byte)((convertHexDigit(data[ix++]) << 4)
                                      + convertHexDigit(data[ix++]));
                      break;
@@ -373,8 +376,22 @@ public final class RequestUtil{
     	
     	
     }
-    public static void main(String[] args) throws UnsupportedEncodingException {
-    	 ParameterMap results=new ParameterMap();
+    public static void main(String[] args)  {
+    	
+    	char a='A';
+    	System.out.println((byte)a==65);
+    	String str="%3D";
+    	byte[] bt=str.getBytes();
+    	for (byte b : bt) {
+    		System.out.println(convertHexDigit(b)<<4);
+		}
+    	System.out.println((char)(-85));
+    
+    }
+    
+    private  void test1() throws UnsupportedEncodingException{
+
+   	 ParameterMap results=new ParameterMap();
 		String s="rsv_spt=1&rsv_iqid=0xf6f4af8000002b6b&issp=1&f=3&rsv_bp=1&rsv_idx=2&ie=utf-8&rqlang=cn&tn=baiduhome_pg&rsv_enter=0&rsv_t=bcc5eVQo3f07JoLo%2FHBEbIwu1Nz%2FNmlCDh%2Fe87yERYXs5ViOjnO%2F%2FToABrixEf532LRr&oq=url%25E4%25B8%25AD%25E7%259A%2584%2526lt%253B%25E8%25BD%25AC%25E4%25B8%25AD%25E6%2596%2587&inputT=2064&rsv_pq=ee4574fa0001821a&rsv_sug3=152&rsv_sug1=155&rsv_sug7=100&prefixsug=url%25E4%25B8%25AD%25E7%259A%2584%2526lt%253B&rsp=0&rsv_sug4=2788&rsv_sug=1";
 		parseParameters(results,s.getBytes(),"ISO-8859-1");
 		
@@ -382,7 +399,8 @@ public final class RequestUtil{
 			  System.out.println("Key = " + key+"  value"+Arrays.toString((String[])results.get(key.toString()))); 
 			} 
 		
-	}
+	
+    }
     
 
 }

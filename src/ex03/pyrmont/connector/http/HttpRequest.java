@@ -3,12 +3,15 @@ package ex03.pyrmont.connector.http;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.Principal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -20,8 +23,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.catalina.util.Enumerator;
 import org.apache.catalina.util.ParameterMap;
 import org.apache.catalina.util.RequestUtil;
+
+import ex03.pyrmont.connector.RequestStream;
 
 public class HttpRequest implements HttpServletRequest{
 	
@@ -32,7 +38,7 @@ public class HttpRequest implements HttpServletRequest{
 	private String method;
 	private String protocol;
 	private String queryString;
-	private String requeURI;
+	private String requestURI;
 	private String serverName;
 	private int serverPort;
 	private Socket socket;
@@ -106,12 +112,12 @@ public class HttpRequest implements HttpServletRequest{
 		//解析查询字符串中指定的任何参数
 		  String queryString = this.getQueryString();
 		   try {
-			      RequestUtil.parseParameters(results, queryString, encoding);
+			      RequestUtil.parseParameters(results, queryString, encoding);//queryString 的解析
 			    }
 			    catch (UnsupportedEncodingException e) {
 			      ;
 			    }
-		   String contentType = getContentType();
+		   String contentType = getContentType();// 举例：text/html;charset:utf-8;
 		   if(contentType == null)
 			   contentType = "";
 		   int semicolon = contentType.indexOf(';');
@@ -122,7 +128,7 @@ public class HttpRequest implements HttpServletRequest{
 		        contentType = contentType.trim();
 		      }
 		    if ("POST".equals(getMethod()) && (getContentLength() > 0)
-		    	      && "application/x-www-form-urlencoded".equals(contentType)){
+		    	      && "application/x-www-form-urlencoded".equals(contentType)){//表单默认的提交数据的格式
 		    	try {
 		    	int max = getContentLength();
 		    	int len = 0;
@@ -139,7 +145,7 @@ public class HttpRequest implements HttpServletRequest{
 		        if (len < max) {
 		            throw new RuntimeException("Content length mismatch");
 		          }
-		        RequestUtil.parseParameters(results, buf, encoding);
+		        RequestUtil.parseParameters(results, buf, encoding);// 表单等的提交
 				} catch (UnsupportedEncodingException ue) {
 					;
 				}
@@ -148,26 +154,102 @@ public class HttpRequest implements HttpServletRequest{
 			      }
 		    }
 			  //存储最终的结果
-		    results.setLocked(true);
-		    parsed = true;
+		    results.setLocked(true);//已被锁定
+		    parsed = true;//
 		    parameters = results;
 		   
-		   
-		   
-		   
-		   
+	  }
+	  public void addCookie(Cookie cookie) {
+		  synchronized (cookies) {
+		      cookies.add(cookie);}
 	  }
 	  
+	  public ServletInputStream createInputStream()  throws IOException {
+		  return (new RequestStream(this));
+	  }
+	  
+	  public InputStream getStream() {
+		    return this.input;
+		  }
+	  
+	  public void setContentLength(int length) {
+		    this.contentLength = length;
+		  }
+	  
+	  public void setContentType(String type) {
+		    this.contentType = type;
+		  }
+	  
+	  public void setInet(InetAddress inetAddress) {
+		    this.inetAddress = inetAddress;
+		  }
+
+	  public void setContextPath(String path) {
+		    if (path == null)
+		      this.contextPath = "";
+		    else
+		      this.contextPath = path;
+		  }  
 	 
+	  public void setMethod(String method) {
+		    this.method = method;
+		  }
+	  
+	  public void setPathInfo(String path) {
+		    this.pathInfo = path;
+		  }
+
+	  public void setProtocol(String protocol) {
+		    this.protocol = protocol;
+		  }
+
+
+	  public void setQueryString(String queryString) {
+		    this.queryString = queryString;
+		  }
+	  
+	  public void setRequestURI(String requestURI) {
+		    this.requestURI = requestURI;
+		  }
+	  //设置服务器(虚拟主机)的名称来处理此请求。
+	  public void setServerName(String name) {
+		    this.serverName = name;
+		  }
+	  //设置服务器端口号来处理此请求。
+	  public void setServerPort(int port) {
+		    this.serverPort = port;
+		  }
+	  
+	  public void setSocket(Socket socket) {
+		    this.socket = socket;
+		  }
+/**
+ * 设置一个标志，指示此请求的请求会话ID是否通过cookie传入。这通常由http连接器在解析请求头时调用。
+ */
+	  public void setRequestedSessionCookie(boolean flag) {
+		    this.requestedSessionCookie = flag;
+		  }	  
+	  
+	  public void setRequestedSessionId(String requestedSessionId) {
+		    this.requestedSessionId = requestedSessionId;
+		  }
+
+	  public void setRequestedSessionURL(boolean flag) {
+		    requestedSessionURL = flag;
+		  }
+	  
+	  
 	/***************implements HttpServletRequest*********/
-	public Object getAttribute(String s) {
-		
-		return null;
+	public Object getAttribute(String name) {
+	    synchronized (attributes) {
+	        return (attributes.get(name));
+	      }
 	}
 
 	public Enumeration getAttributeNames() {
-		
-		return null;
+		   synchronized (attributes) {
+			      return (new Enumerator(attributes.keySet()));
+			    }
 	}
 
 	public String getCharacterEncoding() {
@@ -191,33 +273,44 @@ public class HttpRequest implements HttpServletRequest{
 	}
 
 	public ServletInputStream getInputStream() throws IOException {
-		
-		return null;
+		if (reader != null)
+			throw new IllegalStateException("getInputStream has been called");
+		if (stream == null)
+			stream = this.createInputStream();
+		return stream;
 	}
 
-	public String getParameter(String s) {
-		
-		return null;
+	public String getParameter(String name) {
+		parseParameters();
+		String values[] = (String[]) parameters.get(name);
+		if (values != null)
+		      return (values[0]);
+		    else
+		      return (null);
 	}
 
 	public Enumeration getParameterNames() {
-		
-		return null;
+	    parseParameters();
+	    return (new Enumerator(parameters.keySet()));
 	}
 
-	public String[] getParameterValues(String s) {
-		
-		return null;
+	public String[] getParameterValues(String name) {
+	    parseParameters();
+	    String values[] = (String[]) parameters.get(name);
+	    if (values != null)
+	        return (values);
+	    else
+	        return null;
 	}
 
 	public Map getParameterMap() {
-		
-		return null;
+	    parseParameters();
+	    return (this.parameters);
 	}
 
 	public String getProtocol() {
 		
-		return null;
+		return protocol;
 	}
 
 	public String getScheme() {
@@ -236,8 +329,17 @@ public class HttpRequest implements HttpServletRequest{
 	}
 
 	public BufferedReader getReader() throws IOException {
-		
-		return null;
+	    if (stream != null)
+	        throw new IllegalStateException("getInputStream has been called.");
+	    if (reader == null) {
+	        String encoding = getCharacterEncoding();
+	        if (encoding == null)
+	          encoding = "ISO-8859-1";
+	        InputStreamReader isr =
+	          new InputStreamReader(createInputStream(), encoding);
+	          reader = new BufferedReader(isr);
+	      }
+		return reader;
 	}
 
 	public String getRemoteAddr() {
@@ -250,12 +352,12 @@ public class HttpRequest implements HttpServletRequest{
 		return null;
 	}
 
-	public void setAttribute(String s, Object obj) {
+	public void setAttribute(String key, Object value) {
 		
 		
 	}
 
-	public void removeAttribute(String s) {
+	public void removeAttribute(String attribute) {
 		
 		
 	}
@@ -275,12 +377,12 @@ public class HttpRequest implements HttpServletRequest{
 		return false;
 	}
 
-	public RequestDispatcher getRequestDispatcher(String s) {
+	public RequestDispatcher getRequestDispatcher(String path) {
 		
 		return null;
 	}
 
-	public String getRealPath(String s) {
+	public String getRealPath(String path) {
 		
 		return null;
 	}
@@ -291,33 +393,65 @@ public class HttpRequest implements HttpServletRequest{
 	}
 
 	public Cookie[] getCookies() {
-		
-		return null;
+		 synchronized (cookies) {
+		      if (cookies.size() < 1)
+		        return (null);
+		      Cookie results[] = new Cookie[cookies.size()];
+		      return ((Cookie[]) cookies.toArray(results));
+		    }
 	}
 
-	public long getDateHeader(String s) {
-		
-		return 0;
+	public long getDateHeader(String name) {
+	    String value = getHeader(name);
+	    if (value == null)
+	        return (-1L);
+	    value += " ";
+	    for (int i = 0; i < formats.length; i++) {
+	        try {
+	          Date date = formats[i].parse(value);
+	          return (date.getTime());
+	        }
+	        catch (ParseException e) {
+	          ;
+	        }
+	      }
+	      throw new IllegalArgumentException(value);		
 	}
 
-	public String getHeader(String s) {
-		
-		return null;
+	public String getHeader(String name) {
+	    name = name.toLowerCase();
+	    synchronized (headers) {
+	        ArrayList values = (ArrayList) headers.get(name);
+	        if (values != null)
+	          return ((String) values.get(0));
+	        else
+	          return null;
+	      }
 	}
 
-	public Enumeration getHeaders(String s) {
-		
-		return null;
+	public Enumeration getHeaders(String name) {
+	    name = name.toLowerCase();
+	    synchronized (headers) {
+	        ArrayList values = (ArrayList) headers.get(name);
+	        if (values != null)
+	          return (new Enumerator(values));
+	        else
+	          return (new Enumerator(empty));
+	      }	    
 	}
 
 	public Enumeration getHeaderNames() {
-		
-		return null;
+	    synchronized (headers) {
+	        return (new Enumerator(headers.keySet()));
+	      }
 	}
 
-	public int getIntHeader(String s) {
-		
-		return 0;
+	public int getIntHeader(String name) {
+	    String value = getHeader(name);
+	    if (value == null)
+	      return (-1);
+	    else
+	      return (Integer.parseInt(value));
 	}
 
 	public String getMethod() {
@@ -327,7 +461,7 @@ public class HttpRequest implements HttpServletRequest{
 
 	public String getPathInfo() {
 		
-		return null;
+		return pathInfo;
 	}
 
 	public String getPathTranslated() {
@@ -337,7 +471,7 @@ public class HttpRequest implements HttpServletRequest{
 
 	public String getContextPath() {
 		
-		return null;
+		return contextPath;
 	}
 
 	public String getQueryString() {
@@ -350,7 +484,7 @@ public class HttpRequest implements HttpServletRequest{
 		return null;
 	}
 
-	public boolean isUserInRole(String s) {
+	public boolean isUserInRole(String role) {
 		
 		return false;
 	}
@@ -367,7 +501,7 @@ public class HttpRequest implements HttpServletRequest{
 
 	public String getRequestURI() {
 		
-		return null;
+		return requestURI;
 	}
 
 	public StringBuffer getRequestURL() {
@@ -407,7 +541,7 @@ public class HttpRequest implements HttpServletRequest{
 
 	public boolean isRequestedSessionIdFromUrl() {
 		
-		return false;
+		 return isRequestedSessionIdFromURL();
 	}
 	
 	
