@@ -40,8 +40,11 @@ public class HttpConnector implements Runnable{
 		        catch (Exception e) {
 		          continue;
 		        }
+		        //提交一个 socket 给处理器
+		        HttpProcessor processor = new HttpProcessor(this);
+		        processor.process(socket);
 		    }
-		HttpPro
+		
 	}
 	public void start() {
 	    Thread thread = new Thread(this);

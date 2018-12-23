@@ -1,5 +1,10 @@
 package ex03.pyrmont.connector.http;
-//连接器   创建
+
+import java.net.Socket;
+
+import org.apache.catalina.util.StringManager;
+
+//连接器   创建   解析请求
 /* this class used to be called HttpServer */
 
 /*    http请求示例：：：：：：
@@ -32,10 +37,22 @@ public class HttpProcessor {
 	//与此处理器关联的HTTP-连接器。
 	private HttpConnector connector = null;
 	private HttpRequest request;
-	private Http
+	private HttpRequestLine requestLine = new HttpRequestLine();
+	private HttpResponse response;
+	
+	protected String method = null;
+	protected String queryString = null;
+	
+	//this string manager for this package.
+	protected StringManager sm =
+		StringManager.getManager("ex03.pyrmont.connector.http");
 	
 	public HttpProcessor(HttpConnector connector){
-		this.
+		this.connector = connector;
+		
+	}
+	
+	public void process(Socket socket) {
 		
 	}
 	
