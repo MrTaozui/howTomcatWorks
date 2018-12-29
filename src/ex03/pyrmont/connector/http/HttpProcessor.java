@@ -1,8 +1,13 @@
 package ex03.pyrmont.connector.http;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 
 import org.apache.catalina.util.StringManager;
+
+import ex03.pyrmont.ServletProcessor;
+import ex03.pyrmont.StaticResourceProcessor;
 
 //连接器   创建   解析请求
 /* this class used to be called HttpServer */
@@ -51,10 +56,51 @@ public class HttpProcessor {
 		this.connector = connector;
 		
 	}
-	
+	/**
+	 * 完成4个操作：
+	 * 1、创建一个HttpRequest对象
+	 * 2、创建一个HttpResponse对象
+	 * 3、解析请求的第一行内容和请求头信息，填充HttpRequest对象
+	 * 4、将HttpRequest对象和HttpResponse对象传递给servletProcessor或StaticResourceProcessor
+	 * 的process()方法。servletProcessor类会调用请求的servlet实例的service()方法，
+	 * StaticResourceProcessor会将静态资源发送给客户端。
+	 * @param socket
+	 */
 	public void process(Socket socket) {
+		SocketInputStream input = null;
+		OutputStream output = null;
+		try {
+			input = new SocketInputStream(socket.getInputStream(), 2048);
+			output = socket.getOutputStream();
+			//创建一个HttpRequest 对象并处理
+			request = new HttpRequest(input);
+			//创建一个HttpResponse 对象
+			response = new HttpResponse(output);
+			response.setRequest(request);
+			//设置向客户端发送的Header 信息
+			response.setHeader("Server", "Pyrmont Servlet Container");
+			
+			parseRequest(request,response);
+			parseHeaders(input);
+			
+			//检查一个i请求是一个servlet 还是一个静态的资源
+			//servlet请求以"/servlet/"开头
+			if(request.getRequestURI().startsWith("/servlet/")){
+				ServletProcessor processor =new ServletProcessor();
+				processor.process(request, response);
+			}else{
+				StaticResourceProcessor processor = new StaticResourceProcessor();
+				processor.process(request, response);
+			}
+			//关闭socket
+			socket.close();
+			//这个应用没有shutdown
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 	}
+	
 	
 
 }

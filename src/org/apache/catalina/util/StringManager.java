@@ -51,7 +51,8 @@ public class StringManager {
 		 String value = this.getString(key);
 		 
 		 try{
-		 //确保参数不为null，这样1.2 VM前的参数就不会出现问题
+		 //确保参数不为null，这样1.2 VM前的参数就不会出现问题  
+		//String[] strs = {"大","家",null} 	 转为 String[] strs = {"大","家","null"}
 		 Object nonNullArgs[] = args;
 		 for (int i=0; i<args.length; i++) {
 			if(args[i] == null){
@@ -96,7 +97,7 @@ public class StringManager {
 	    }
 	    
 	    // --------------------------------------------------------------
-	    // STATIC SUPPORT METHODS
+	    // STATIC SUPPORT METHODS   用到的时候，加载在其中
 	    // --------------------------------------------------------------
 	    private static Hashtable managers = new Hashtable();
 	    
@@ -111,7 +112,7 @@ public class StringManager {
 	    
 	    
 	 public static void main(String[] args) {
-		String[] strs={"大","家","好"};
+		String[] strs={"大","家","null"};
 		System.out.println(MessageFormat.format("{0},{1},{2}", strs));
 	}
 }

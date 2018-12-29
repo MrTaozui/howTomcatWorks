@@ -28,7 +28,14 @@ import org.apache.catalina.util.ParameterMap;
 import org.apache.catalina.util.RequestUtil;
 
 import ex03.pyrmont.connector.RequestStream;
-
+/**
+ * 将要做的工作：
+ * 1、读取套接字的输入流
+ * 2、解析请求行
+ * 3、解析请求头
+ * 4、解析cookie
+ * 5、获取参数
+ */
 public class HttpRequest implements HttpServletRequest{
 	
 	private String contentType;
