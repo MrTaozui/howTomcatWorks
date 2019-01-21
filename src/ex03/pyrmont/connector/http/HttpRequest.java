@@ -59,8 +59,14 @@ public class HttpRequest implements HttpServletRequest{
 	
 	protected String contextPath = "";//此请求的上下文路径
 	
-	protected ArrayList cookies = new ArrayList();//与此请求关联的一组cookie
+	protected ArrayList cookies = new ArrayList();//存储请求的cookie
 	
+	//与此请求关联的HTTP标头，按名称键控,的值是对应头值的数组列表。
+	protected HashMap headers = new HashMap();// 存储请求头信息 
+		
+		//此请求的解析参数。只有当参数信息是通过getParameter()家族的方法调用。
+	protected ParameterMap parameters = null; //存储请求参数的信息
+		
 	protected static ArrayList empty = new ArrayList();//用于返回空枚举的空集合。不为这个集合添加任何元素!
 	//在getDateHeader()中使用的SimpleDateFormat格式集。
 	protected SimpleDateFormat formats[] = {
@@ -69,10 +75,7 @@ public class HttpRequest implements HttpServletRequest{
 		    new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US)
 	};
 	
-	//与此请求关联的HTTP标头，按名称键控,的值是对应头值的数组列表。
-	protected HashMap headers = new HashMap();
-	//此请求的解析参数。只有当参数信息是通过getParameter()家族的方法调用。
-	protected ParameterMap parameters = null;
+	
 	//请求参数是否被编译过
 	protected boolean parsed = false;
 	protected String pathInfo = null;

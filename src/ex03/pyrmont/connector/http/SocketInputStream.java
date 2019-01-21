@@ -6,11 +6,7 @@ import java.io.EOFException;
 import org.apache.catalina.util.StringManager;
 
 /**
- * Extends InputStream to be more efficient reading lines during HTTP
- * header processing.
- *
- * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
- * @deprecated
+ * 此类从套接字的InputStream对象中读取字节流
  */
 public class SocketInputStream extends InputStream {
 
@@ -113,14 +109,10 @@ public class SocketInputStream extends InputStream {
 
 
     /**
-     * Read the request line, and copies it to the given buffer. This
-     * function is meant to be used during the HTTP request header parsing.
-     * Do NOT attempt to read the request body using it.
-     *
-     * @param requestLine Request line object
-     * @throws IOException If an exception occurs during the underlying socket
-     * read operations, or if the given buffer is not big enough to accomodate
-     * the whole line.
+     * 返回一个HTTP请求的第一行内容  为： 请求方法    URI HTTP版本
+     * 
+     * 需要在readHeader() 之前调用，因为套接字输入流只能从第一个字节读取到最后一个字节
+     * （无法从后向前读取）
      */
     public void readRequestLine(HttpRequestLine requestLine)
         throws IOException {
@@ -280,14 +272,8 @@ public class SocketInputStream extends InputStream {
 
 
     /**
-     * Read a header, and copies it to the given buffer. This
-     * function is meant to be used during the HTTP request header parsing.
-     * Do NOT attempt to read the request body using it.
-     *
-     * @param requestLine Request line object
-     * @throws IOException If an exception occurs during the underlying socket
-     * read operations, or if the given buffer is not big enough to accomodate
-     * the whole line.
+     * 每次调用此方法 都会返回一个 键值对 所以应该重复调用此方法
+     * 直到读取了所有的请求头的信息
      */
     public void readHeader(HttpHeader header)
         throws IOException {
