@@ -107,9 +107,11 @@ public class HttpProcessor {
 	 * 帮助填充request对象
 	 * @param input
 	 */
-	private void parseHeaders(SocketInputStream input) {
-		TODO
+	private void parseHeaders(SocketInputStream input) {		
 		//TODO 3.3.3
+		while (true) {
+			HttpHeader
+		}
 		
 	}
 	/**
