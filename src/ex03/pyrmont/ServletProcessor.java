@@ -21,13 +21,18 @@ public class ServletProcessor {
     String servletName = uri.substring(uri.lastIndexOf("/") + 1);
     URLClassLoader loader = null;
     try {
-      // create a URLClassLoader
+      // 创建一个类加载器
       URL[] urls = new URL[1];
       URLStreamHandler streamHandler = null;
       File classPath = new File(Constants.WEB_ROOT);
       String repository = (new URL("file", null, classPath.getCanonicalPath() + File.separator)).toString() ;
       urls[0] = new URL(null, repository, streamHandler);
-      loader = new URLClassLoader(urls);
+      loader = new URLClassLoader(urls); //URLClassLoader 继承了ClassLoader
+      /**************URLClassLoader加载类的范围
+       * 文件: (从文件系统目录加载)
+       * jar包: (从Jar包进行加载)
+       * Http: (从远程的Http服务进行加载)
+       *******************/
     }
     catch (IOException e) {
       System.out.println(e.toString() );

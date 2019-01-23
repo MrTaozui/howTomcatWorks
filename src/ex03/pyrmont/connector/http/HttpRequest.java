@@ -137,7 +137,7 @@ public class HttpRequest implements HttpServletRequest{
 		    else {
 		        contentType = contentType.trim();
 		      }
-		    if ("POST".equals(getMethod()) && (getContentLength() > 0)
+		    if ("POST".equals(getMethod()) && (getContentLength() > 0)// post提交的 请求体会包含参数
 		    	      && "application/x-www-form-urlencoded".equals(contentType)){//表单默认的提交数据的格式
 		    	try {
 		    	int max = getContentLength();
