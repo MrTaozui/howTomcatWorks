@@ -177,7 +177,7 @@ public final class RequestUtil{
     }
     /**
      * 根据RFC 2109将cookie头解析为cookie数组。
-     *
+     *name 示例值：$Version=1; Skin=new;
      * @param HTTP“Cookie”报头的报头值
      */
     public static Cookie[] parseCookieHeader(String header){

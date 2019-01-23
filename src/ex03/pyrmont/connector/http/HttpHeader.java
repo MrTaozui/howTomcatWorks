@@ -196,4 +196,33 @@ public final class HttpHeader {
 		return this.equals(header.name, header.nameEnd)
 				&& this.valueEqueals(header.value, valueEnd);
 	}
+	
+	
+	//------------------Object的方法-------------------
+	/**
+	 * 返回哈希值，此HttpHeader对象的哈希码 返回与new String(name, 0, nameEnd).hashCode()相同的值
+	 * （利用String的计算hashcode的方法计算hashcode）
+	 */
+	public int hashCode() {
+		int h = this.hashCode;
+		if (h == 0) {
+			int off = 0;
+			char val[] = this.name;
+			int len = this.nameEnd;
+			for (int i=0; i<len; i++)
+				h = 31*h + val[off++];
+			this.hashCode = h;
+		}
+		return h;
+	}
+
+	
+	public boolean equals(Object obj) {
+		if (obj instanceof String) {
+			return equals(((String)obj).toLowerCase());
+		}else if (obj instanceof HttpHeader){
+			return equals((HttpHeader)obj);
+		}
+		return false;
+	}
 }

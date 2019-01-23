@@ -11,17 +11,17 @@ import org.apache.catalina.util.StringManager;
 public class SocketInputStream extends InputStream {
 
 
-    // -------------------------------------------------------------- Constants
+    // -------------------------------字符常量 
 
 
     /**
-     * CR.
+     * CR.  13
      */
     private static final byte CR = (byte) '\r';
 
 
     /**
-     * LF.
+     * LF.  10
      */
     private static final byte LF = (byte) '\n';
 
@@ -45,25 +45,27 @@ public class SocketInputStream extends InputStream {
 
 
     /**
-     * Lower case offset.
+     * 小写偏移量.
      */
     private static final int LC_OFFSET = 'A' - 'a';
 
 
     /**
      * Internal buffer.
+     * 用来存socket中inputStream中的字节数组
      */
     protected byte buf[];
 
 
     /**
      * Last valid byte.
+     * socket已经读取到的位置
      */
     protected int count;
 
 
     /**
-     * Position in the buffer.
+     * buffer中的指针
      */
     protected int pos;
 
@@ -84,10 +86,10 @@ public class SocketInputStream extends InputStream {
      * @param is socket input stream
      * @param bufferSize size of the internal buffer
      */
-    public SocketInputStream(InputStream is, int bufferSize) {
+    public SocketInputStream(InputStream is, int bufferSize) { // bufferSize从HttpProcessr传过来的是2048
 
         this.is = is;
-        buf = new byte[bufferSize];
+        this.buf = new byte[bufferSize];
 
     }
 
@@ -118,14 +120,14 @@ public class SocketInputStream extends InputStream {
         throws IOException {
 
         // Recycling check
-        if (requestLine.methodEnd != 0)
+        if (requestLine.methodEnd != 0) // requestLine 首次传进来肯都是初始值 都是0
             requestLine.recycle();
 
         // Checking for a blank line
         int chr = 0;
         do { // Skipping CR or LF
             try {
-                chr = read();
+                chr = this.read();
             } catch (IOException e) {
                 chr = -1;
             }
@@ -446,11 +448,12 @@ public class SocketInputStream extends InputStream {
 
     /**
      * Read byte.
+     * 返回buf的第一个值字符ascii 值
      */
     public int read()
         throws IOException {
-        if (pos >= count) {
-            fill();
+        if (this.pos >= this.count) {
+            fill();// 填充buf
             if (pos >= count)
                 return -1;
         }
@@ -513,11 +516,17 @@ public class SocketInputStream extends InputStream {
         throws IOException {
         pos = 0;
         count = 0;
-        int nRead = is.read(buf, 0, buf.length);
+        int nRead = is.read(buf, 0, buf.length); //nRead 返回填充的字节数
         if (nRead > 0) {
             count = nRead;
         }
     }
 
+   public static void main(String[] args) {
+	int pos = 1;
+	char[] c = "abc".toCharArray();
+	System.out.println(c[pos++]&0xff);
+	System.out.println((int)'b');
+}
 
 }

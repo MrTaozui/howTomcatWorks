@@ -42,16 +42,16 @@ public class HttpRequest implements HttpServletRequest{
 	private int contentLength;
 	private InetAddress inetAddress;
 	private InputStream input;
-	private String method;
-	private String protocol;
-	private String queryString;
-	private String requestURI;
+	private String method; // 请求方法
+	private String protocol; // 协议
+	private String queryString; //请求参数
+	private String requestURI; //请求地址
 	private String serverName;
 	private int serverPort;
-	private Socket socket;
+	private Socket socket; //请求过来的socket
 	private boolean requestedSessionCookie;
-	private String requestedSessionId;
-	private boolean requestedSessionURL;
+	private String requestedSessionId; //设置session
+	private boolean requestedSessionURL; // 是否是带有session标志的url 当禁用cookie的时候
 	
 	protected HashMap attributes = new HashMap();//请求的属性值
 	
@@ -96,11 +96,11 @@ public class HttpRequest implements HttpServletRequest{
 	   */
 	  public void addHeader(String name, String value){
 		  name = name .toLowerCase();
-		  synchronized(headers){
+		  synchronized(this.headers){
 			  ArrayList values=(ArrayList)headers.get(name);
 			  if(values == null){
 				  values = new ArrayList();
-				  headers.put(name, values);
+				  this.headers.put(name, values);
 			  }
 			  values.add(values);
 		  }

@@ -5,8 +5,10 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.sql.rowset.serial.SerialException;
 
+import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.StringManager;
 
 import ex03.pyrmont.ServletProcessor;
@@ -98,24 +100,66 @@ public class HttpProcessor {
 			//关闭socket
 			socket.close();
 			//这个应用没有shutdown
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 	}
 	/**
-	 * 帮助填充request对象
+	 * 帮助填充request对象  填充请求头中的 cookie sessionId content-length content-type...
+	 * 和设置request对象 中的headers 数组
 	 * @param input
+	 * @throws IOException 
+	 * @throws ServletException 
 	 */
-	private void parseHeaders(SocketInputStream input) {		
-		//TODO 3.3.3
+	private void parseHeaders(SocketInputStream input) throws IOException, ServletException {	
+		
 		while (true) {
-			HttpHeader
-		}
+			HttpHeader header =new HttpHeader();
+			input.readHeader(header);// 填充请求头 每次请求都会填充一个 header对象
+			if (header.nameEnd ==0){
+				if (header.valueEnd == 0){
+					return;
+				}else {
+					throw new ServletException(sm.getString("httpProcessor.parseHeaders.colon"));
+				}
+			}
+			
+			String name = new String(header.name, 0, header.nameEnd);
+			String value = new String(header.value, 0, header.valueEnd);
+			request.addHeader(name, value);
+			if (name.equals("cookie")) {
+				Cookie cookies[] = RequestUtil.parseCookieHeader(value);//返回Cookie 数组
+				for (int i = 0; i < cookies.length; i++) {
+					if (cookies[i].getName().equals("jsessionid")) {
+						//覆盖url 中的jsessionid（不管url中是否存在）
+						if (!request.isRequestedSessionIdFromCookie()) {
+							request.setRequestedSessionId(cookies[i].getValue());
+							request.setRequestedSessionCookie(true);
+							request.setRequestedSessionURL(false);
+						}
+					}
+					request.addCookie(cookies[i]);
+				}
+			}
+			else if (name.equals("content-length")) {
+				int n = -1;
+				try{
+				n = Integer.parseInt(value);
+				}catch (Exception e){
+					throw new ServletException(sm.getString("httpProcessor.parseHeaders.contentLength"));
+				}
+				request.setContentLength(n);
+			}
+			else if (name.equals("content-type")) {
+				request.setContentType(value);
+			}
+		}  //while 结束
 		
 	}
 	/**
-	 * 帮助填充request对象
+	 * 帮助填充request对象 填充的值有
+	 * requestLine ，请求头  查询参数 会话标志等等
 	 * @param request2
 	 * @param response2
 	 * @throws IOException 

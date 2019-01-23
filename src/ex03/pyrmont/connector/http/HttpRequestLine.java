@@ -1,5 +1,11 @@
 package ex03.pyrmont.connector.http;
 
+/**
+ * 每个http请求的请求第一行  method uri protocol  
+ * 主要是解析这些内容
+ * @author taojiajun
+ *
+ */
 public class HttpRequestLine {
 	
 	public static final int INITIAL_METHOD_SIZE = 8;//初始的方法数量
@@ -57,7 +63,8 @@ public class HttpRequestLine {
     }
     
    /**
-    * 测试报头的值是否包含给定的字符数组
+    * 
+    * 测试uri中是否包含给定的字符数组
     * @param buf  要匹配的字符数组
     * @param end  连续匹配的长度
     * @return   索引位置
@@ -82,6 +89,9 @@ public class HttpRequestLine {
         return -1;
     }
     
+    public int indexOf(String str) {
+    	return this.indexOf(str.toCharArray(), str.length());
+    }
     // --------------------------------------------------------- Object Methods
 
 
