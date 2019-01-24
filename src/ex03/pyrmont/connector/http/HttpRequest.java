@@ -102,7 +102,7 @@ public class HttpRequest implements HttpServletRequest{
 				  values = new ArrayList();
 				  this.headers.put(name, values);
 			  }
-			  values.add(values);
+			  values.add(value);
 		  }
 	  }
 	  /**

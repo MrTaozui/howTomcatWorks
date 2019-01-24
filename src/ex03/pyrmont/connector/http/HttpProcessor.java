@@ -183,7 +183,7 @@ public class HttpProcessor {
 		if(question >= 0){
 			request.setQueryString(new String(requestLine.uri,question+1,
 					requestLine.uriEnd - question -1));
-			uri  = new String (requestLine.uri, 0, requestLine.uriEnd);
+			uri  = new String (requestLine.uri, 0, question);
 		}else{
 			request.setQueryString(null);
 			uri  = new String (requestLine.uri, 0, requestLine.uriEnd);
@@ -225,12 +225,12 @@ public class HttpProcessor {
 		}
 		//正常化uri
 		String normalizedUri = normalize(uri);
-		request.setMethod(method);
-		request.setProtocol(protocol);
+		((HttpRequest)request).setMethod(method);
+		((HttpRequest)request).setProtocol(protocol);
 		if(normalizedUri != null){
-			request.setRequestURI(normalizedUri);
+			((HttpRequest)request).setRequestURI(normalizedUri);
 		}else{
-			request.setRequestURI(uri);
+			((HttpRequest)request).setRequestURI(uri);
 		}
 		if(normalizedUri == null){
 			throw new ServletException("Invalid URI:"+ uri +"'");
