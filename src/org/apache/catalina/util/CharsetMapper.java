@@ -1,8 +1,4 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
- *
  * ====================================================================
  *
  * The Apache Software License, Version 1.1
@@ -61,110 +57,117 @@
  *
  */
 
+/*
+ * This class is based on a class originally written by Jason Hunter
+ * <jhunter@acm.org> as part of the book "Java Servlet Programming"
+ * (O'Reilly).  See http://www.servlets.com/book for more information.
+ * Used by Sun Microsystems with permission.
+ */
 
-package org.apache.catalina;
+package org.apache.catalina.util;
 
 
-import java.util.EventObject;
+import java.io.InputStream;
+import java.util.Locale;
+import java.util.Properties;
+
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Utility class that attempts to map from a Locale to the corresponding
+ * character set to be used for interpreting input text (or generating
+ * output text) when the Content-Type header does not include one.  You
+ * can customize the behavior of this class by modifying the mapping data
+ * it loads, or by subclassing it (to change the algorithm) and then using
+ * your own version for a particular web application.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @revision $Date: 2001/07/22 20:25:13 $ $Version$
  */
 
-public final class LifecycleEvent
-    extends EventObject {
+public class CharsetMapper {
 
 
-    // ----------------------------------------------------------- Constructors
+    // ---------------------------------------------------- Manifest Constants
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * Default properties resource name.
+     */
+    public static final String DEFAULT_RESOURCE =
+      "/org/apache/catalina/util/CharsetMapperDefault.properties";
+
+
+    // ---------------------------------------------------------- Constructors
+
+
+    /**
+     * Construct a new CharsetMapper using the default properties resource.
+     */
+    public CharsetMapper() {
+
+        this(DEFAULT_RESOURCE);
+
+    }
+
+
+    /**
+     * Construct a new CharsetMapper using the specified properties resource.
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * @param name Name of a properties resource to be loaded
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
+     * @exception IllegalArgumentException if the specified properties
+     *  resource could not be loaded for any reason.
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
+    public CharsetMapper(String name) {
 
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
+        try {
+            InputStream stream =
+              this.getClass().getResourceAsStream(name);
+            map.load(stream);
+            stream.close();
+        } catch (Throwable t) {
+            throw new IllegalArgumentException(t.toString());
+        }
+
 
     }
 
 
-    // ----------------------------------------------------- Instance Variables
+    // ---------------------------------------------------- Instance Variables
 
 
     /**
-     * The event data associated with this event.
+     * The mapping properties that have been initialized from the specified or
+     * default properties resource.
      */
-    private Object data = null;
+    private Properties map = new Properties();
+
+
+
+
+    // ------------------------------------------------------- Public Methods
 
 
     /**
-     * The Lifecycle on which this event occurred.
+     * Calculate the name of a character set to be assumed, given the specified
+     * Locale and the absence of a character set specified as part of the
+     * content type header.
+     *
+     * @param locale The locale for which to calculate a character set
      */
-    private Lifecycle lifecycle = null;
+    public String getCharset(Locale locale) {
 
+        String charset = null;
 
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+        // First, try a full name match (language and country)
+        charset = map.getProperty(locale.toString());
+        if (charset != null)
+            return (charset);
 
-
-    // ------------------------------------------------------------- Properties
-
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
-
-    }
-
-
-    /**
-     * Return the Lifecycle on which this event occurred.
-     */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
-
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
+        // Second, try to match just the language
+        charset = map.getProperty(locale.getLanguage());
+        return (charset);
 
     }
 

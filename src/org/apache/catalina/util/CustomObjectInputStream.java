@@ -1,7 +1,8 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * CustomObjectInputStream.java
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/util/CustomObjectInputStream.java,v 1.2 2001/07/22 20:25:13 pier Exp $
+ * $Revision: 1.2 $
+ * $Date: 2001/07/22 20:25:13 $
  *
  * ====================================================================
  *
@@ -32,7 +33,7 @@
  * 4. The names "The Jakarta Project", "Tomcat", and "Apache Software
  *    Foundation" must not be used to endorse or promote products derived
  *    from this software without prior written permission. For written
- *    permission, please contact apache@apache.org.
+ *    permission, please contact apache@@apache.org.
  *
  * 5. Products derived from this software may not be called "Apache"
  *    nor may "Apache" appear in their names without prior written
@@ -61,112 +62,60 @@
  *
  */
 
+package org.apache.catalina.util;
 
-package org.apache.catalina;
-
-
-import java.util.EventObject;
-
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Custom subclass of <code>ObjectInputStream</code> that loads from the
+ * class loader for this web application.  This allows classes defined only
+ * with the web application to be found correctly.
  *
- * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @@author Craig R. McClanahan
+ * @@author Bip Thelin
+ * @@version $Revision: 1.2 $, $Date: 2001/07/22 20:25:13 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
+public final class CustomObjectInputStream
+    extends ObjectInputStream {
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * The class loader we will use to resolve classes.
+     */
+    private ClassLoader classLoader = null;
+
+    /**
+     * Construct a new instance of CustomObjectInputStream
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * @@param stream The input stream we will read from
+     * @@param classLoader The class loader used to instantiate objects
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
+     * @@exception IOException if an input/output error occurs
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
+    public CustomObjectInputStream(InputStream stream,
+                                   ClassLoader classLoader)
+        throws IOException {
 
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
+        super(stream);
+        this.classLoader = classLoader;
     }
 
-
-    // ----------------------------------------------------- Instance Variables
-
-
     /**
-     * The event data associated with this event.
+     * Load the local class equivalent of the specified stream class
+     * description, by using the class loader assigned to this Context.
+     *
+     * @@param classDesc Class description from the input stream
+     *
+     * @@exception ClassNotFoundException if this class cannot be found
+     * @@exception IOException if an input/output error occurs
      */
-    private Object data = null;
+    public Class resolveClass(ObjectStreamClass classDesc)
+        throws ClassNotFoundException, IOException {
 
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
-
-
-    // ------------------------------------------------------------- Properties
-
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
-
+        return (classLoader.loadClass(classDesc.getName()));
     }
-
-
-    /**
-     * Return the Lifecycle on which this event occurred.
-     */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
-
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
-
-    }
-
-
 }

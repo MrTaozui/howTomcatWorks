@@ -1,5 +1,5 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/ValveContext.java,v 1.3 2001/07/22 20:13:30 pier Exp $
  * $Revision: 1.3 $
  * $Date: 2001/07/22 20:13:30 $
  *
@@ -7,7 +7,7 @@
  *
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights
+ * Copyright (c) 1999-2001 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,108 +65,66 @@
 package org.apache.catalina;
 
 
-import java.util.EventObject;
+import java.io.IOException;
+import javax.servlet.ServletException;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * <p>A <b>ValveContext</b> is the mechanism by which a Valve can trigger the
+ * execution of the next Valve in a Pipeline, without having to know anything
+ * about the internal implementation mechanisms.  An instance of a class
+ * implementing this interface is passed as a parameter to the
+ * <code>Valve.invoke()</code> method of each executed Valve.</p>
+ *
+ * <p><strong>IMPLEMENTATION NOTE</strong>: It is up to the implementation of
+ * ValveContext to ensure that simultaneous requests being processed (by
+ * separate threads) through the same Pipeline do not interfere with each
+ * other's flow of control.</p>
  *
  * @author Craig R. McClanahan
+ * @author Gunnar Rjnning
+ * @author Peter Donald
  * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
+public interface ValveContext {
 
 
-    // ----------------------------------------------------------- Constructors
+    //-------------------------------------------------------------- Properties
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * Return descriptive information about this ValveContext implementation.
+     */
+    public String getInfo();
+
+
+    //---------------------------------------------------------- Public Methods
+
+
+    /**
+     * Cause the <code>invoke()</code> method of the next Valve that is part of
+     * the Pipeline currently being processed (if any) to be executed, passing
+     * on the specified request and response objects plus this
+     * <code>ValveContext</code> instance.  Exceptions thrown by a subsequently
+     * executed Valve (or a Filter or Servlet at the application level) will be
+     * passed on to our caller.
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * If there are no more Valves to be executed, an appropriate
+     * ServletException will be thrown by this ValveContext.
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
+     * @param request The request currently being processed
+     * @param response The response currently being created
+     *
+     * @exception IOException if thrown by a subsequent Valve, Filter, or
+     *  Servlet
+     * @exception ServletException if thrown by a subsequent Valve, Filter,
+     *  or Servlet
+     * @exception ServletException if there are no further Valves configured
+     *  in the Pipeline currently being processed
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
-
-
-    // ------------------------------------------------------------- Properties
-
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
-
-    }
-
-
-    /**
-     * Return the Lifecycle on which this event occurred.
-     */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
-
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
-
-    }
+    public void invokeNext(Request request, Response response)
+        throws IOException, ServletException;
 
 
 }

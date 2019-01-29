@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/Service.java,v 1.7 2001/11/06 22:33:46 amyroh Exp $
+ * $Revision: 1.7 $
+ * $Date: 2001/11/06 22:33:46 $
  *
  * ====================================================================
  *
@@ -65,108 +65,112 @@
 package org.apache.catalina;
 
 
-import java.util.EventObject;
-
-
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * A <strong>Service</strong> is a group of one or more
+ * <strong>Connectors</strong> that share a single <strong>Container</strong>
+ * to process their incoming requests.  This arrangement allows, for example,
+ * a non-SSL and SSL connector to share the same population of web apps.
+ * <p>
+ * A given JVM can contain any number of Service instances; however, they are
+ * completely independent of each other and share only the basic JVM facilities
+ * and classes on the system class path.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.7 $ $Date: 2001/11/06 22:33:46 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+public interface Service {
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * Return the <code>Container</code> that handles requests for all
+     * <code>Connectors</code> associated with this Service.
      */
-    public Object getData() {
-
-        return (this.data);
-
-    }
+    public Container getContainer();
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * Set the <code>Container</code> that handles requests for all
+     * <code>Connectors</code> associated with this Service.
+     *
+     * @param container The new Container
      */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
+    public void setContainer(Container container);
 
 
     /**
-     * Return the event type of this event.
+     * Return descriptive information about this Service implementation and
+     * the corresponding version number, in the format
+     * <code>&lt;description&gt;/&lt;version&gt;</code>.
      */
-    public String getType() {
+    public String getInfo();
 
-        return (this.type);
 
-    }
+    /**
+     * Return the name of this Service.
+     */
+    public String getName();
 
+
+    /**
+     * Set the name of this Service.
+     *
+     * @param name The new service name
+     */
+    public void setName(String name);
+
+
+    /**
+     * Return the <code>Server</code> with which we are associated (if any).
+     */
+    public Server getServer();
+
+
+    /**
+     * Set the <code>Server</code> with which we are associated (if any).
+     *
+     * @param server The server that owns this Service
+     */
+    public void setServer(Server server);
+
+    
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Add a new Connector to the set of defined Connectors, and associate it
+     * with this Service's Container.
+     *
+     * @param connector The Connector to be added
+     */
+    public void addConnector(Connector connector);
+
+
+    /**
+     * Find and return the set of Connectors associated with this Service.
+     */
+    public Connector[] findConnectors();
+
+
+    /**
+     * Remove the specified Connector from the set associated from this
+     * Service.  The removed Connector will also be disassociated from our
+     * Container.
+     *
+     * @param connector The Connector to be removed
+     */
+    public void removeConnector(Connector connector);
+
+    /**
+     * Invoke a pre-startup initialization. This is used to allow connectors
+     * to bind to restricted ports under Unix operating environments.
+     *
+     * @exception LifecycleException If this server was already initialized.
+     */
+    public void initialize()
+    throws LifecycleException;
 
 }

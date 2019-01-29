@@ -1,13 +1,13 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/SessionEvent.java,v 1.1 2001/07/29 03:43:54 craigmcc Exp $
+ * $Revision: 1.1 $
+ * $Date: 2001/07/29 03:43:54 $
  *
  * ====================================================================
  *
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights
+ * Copyright (c) 1999-2001 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,53 +69,14 @@ import java.util.EventObject;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * General event for notifying listeners of significant changes on a Session.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.1 $ $Date: 2001/07/29 03:43:54 $
  */
 
-public final class LifecycleEvent
+public final class SessionEvent
     extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
 
 
     /**
@@ -125,9 +86,9 @@ public final class LifecycleEvent
 
 
     /**
-     * The Lifecycle on which this event occurred.
+     * The Session on which this event occurred.
      */
-    private Lifecycle lifecycle = null;
+    private Session session = null;
 
 
     /**
@@ -136,7 +97,21 @@ public final class LifecycleEvent
     private String type = null;
 
 
-    // ------------------------------------------------------------- Properties
+    /**
+     * Construct a new SessionEvent with the specified parameters.
+     *
+     * @param session Session on which this event occurred
+     * @param type Event type
+     * @param data Event data
+     */
+    public SessionEvent(Session session, String type, Object data) {
+
+        super(session);
+        this.session = session;
+        this.type = type;
+        this.data = data;
+
+    }
 
 
     /**
@@ -150,11 +125,11 @@ public final class LifecycleEvent
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * Return the Session on which this event occurred.
      */
-    public Lifecycle getLifecycle() {
+    public Session getSession() {
 
-        return (this.lifecycle);
+        return (this.session);
 
     }
 
@@ -165,6 +140,17 @@ public final class LifecycleEvent
     public String getType() {
 
         return (this.type);
+
+    }
+
+
+    /**
+     * Return a string representation of this event.
+     */
+    public String toString() {
+
+        return ("SessionEvent['" + getSession() + "','" +
+                getType() + "']");
 
     }
 

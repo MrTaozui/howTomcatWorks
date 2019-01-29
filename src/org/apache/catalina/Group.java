@@ -1,13 +1,12 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/Group.java,v 1.5 2002/02/10 08:06:19 craigmcc Exp $
+ * $Revision: 1.5 $
+ * $Date: 2002/02/10 08:06:19 $
  *
  * ====================================================================
- *
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights
+ * Copyright (c) 2002 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,108 +64,105 @@
 package org.apache.catalina;
 
 
-import java.util.EventObject;
+import java.security.Principal;
+import java.util.Iterator;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * <p>Abstract representation of a group of {@link User}s in a
+ * {@link UserDatabase}.  Each user that is a member of this group
+ * inherits the {@link Role}s assigned to the group.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.5 $ $Date: 2002/02/10 08:06:19 $
+ * @since 4.1
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+public interface Group extends Principal {
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * Return the description of this group.
      */
-    public Object getData() {
-
-        return (this.data);
-
-    }
+    public String getDescription();
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * Set the description of this group.
+     *
+     * @param description The new description
      */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
+    public void setDescription(String description);
 
 
     /**
-     * Return the event type of this event.
+     * Return the group name of this group, which must be unique
+     * within the scope of a {@link UserDatabase}.
      */
-    public String getType() {
+    public String getGroupname();
 
-        return (this.type);
 
-    }
+    /**
+     * Set the group name of this group, which must be unique
+     * within the scope of a {@link UserDatabase}.
+     *
+     * @param groupname The new group name
+     */
+    public void setGroupname(String groupname);
+
+
+    /**
+     * Return the set of {@link Role}s assigned specifically to this group.
+     */
+    public Iterator getRoles();
+
+
+    /**
+     * Return the {@link UserDatabase} within which this Group is defined.
+     */
+    public UserDatabase getUserDatabase();
+
+
+    /**
+     * Return the set of {@link User}s that are members of this group.
+     */
+    public Iterator getUsers();
+
+
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Add a new {@link Role} to those assigned specifically to this group.
+     *
+     * @param role The new role
+     */
+    public void addRole(Role role);
+
+
+    /**
+     * Is this group specifically assigned the specified {@link Role}?
+     *
+     * @param role The role to check
+     */
+    public boolean isInRole(Role role);
+
+
+    /**
+     * Remove a {@link Role} from those assigned to this group.
+     *
+     * @param role The old role
+     */
+    public void removeRole(Role role);
+
+
+    /**
+     * Remove all {@link Role}s from those assigned to this group.
+     */
+    public void removeRoles();
 
 
 }

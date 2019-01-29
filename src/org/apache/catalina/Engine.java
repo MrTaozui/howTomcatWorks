@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/Engine.java,v 1.9 2002/09/09 23:39:03 amyroh Exp $
+ * $Revision: 1.9 $
+ * $Date: 2002/09/09 23:39:03 $
  *
  * ====================================================================
  *
@@ -64,109 +64,105 @@
 
 package org.apache.catalina;
 
-
-import java.util.EventObject;
-
-
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * An <b>Engine</b> is a Container that represents the entire Catalina servlet
+ * engine.  It is useful in the following types of scenarios:
+ * <ul>
+ * <li>You wish to use Interceptors that see every single request processed
+ *     by the entire engine.
+ * <li>You wish to run Catalina in with a standalone HTTP connector, but still
+ *     want support for multiple virtual hosts.
+ * </ul>
+ * In general, you would not use an Engine when deploying Catalina connected
+ * to a web server (such as Apache), because the Connector will have
+ * utilized the web server's facilities to determine which Context (or
+ * perhaps even which Wrapper) should be utilized to process this request.
+ * <p>
+ * The child containers attached to an Engine are generally implementations
+ * of Host (representing a virtual host) or Context (representing individual
+ * an individual servlet context), depending upon the Engine implementation.
+ * <p>
+ * If used, an Engine is always the top level Container in a Catalina
+ * hierarchy. Therefore, the implementation's <code>setParent()</code> method
+ * should throw <code>IllegalArgumentException</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.9 $ $Date: 2002/09/09 23:39:03 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+public interface Engine extends Container {
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * Return the default hostname for this Engine.
      */
-    public Object getData() {
-
-        return (this.data);
-
-    }
+    public String getDefaultHost();
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * Set the default hostname for this Engine.
+     *
+     * @param defaultHost The new default host
      */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
+    public void setDefaultHost(String defaultHost);
 
 
     /**
-     * Return the event type of this event.
+     * Retrieve the JvmRouteId for this engine.
      */
-    public String getType() {
+    public String getJvmRoute();
 
-        return (this.type);
 
-    }
+    /**
+     * Set the JvmRouteId for this engine.
+     *
+     * @param jvmRouteId the (new) JVM Route ID. Each Engine within a cluster
+     *        must have a unique JVM Route ID.
+     */
+    public void setJvmRoute(String jvmRouteId);
+
+
+    /**
+     * Return the <code>Service</code> with which we are associated (if any).
+     */
+    public Service getService();
+
+
+    /**
+     * Set the <code>Service</code> with which we are associated (if any).
+     *
+     * @param service The service that owns this Engine
+     */
+    public void setService(Service service);
+
+
+    /**
+     * Set the DefaultContext
+     * for new web applications.
+     *
+     * @param defaultContext The new DefaultContext
+     */
+    public void addDefaultContext(DefaultContext defaultContext);
+
+
+    /**
+     * Retrieve the DefaultContext for new web applications.
+     */
+    public DefaultContext getDefaultContext();
+
+
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Import the DefaultContext config into a web application context.
+     *
+     * @param context web application context to import default context
+     */
+    public void importDefaultContext(Context context);
 
 
 }

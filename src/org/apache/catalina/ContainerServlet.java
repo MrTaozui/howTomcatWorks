@@ -1,5 +1,5 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/ContainerServlet.java,v 1.3 2001/07/22 20:13:30 pier Exp $
  * $Revision: 1.3 $
  * $Date: 2001/07/22 20:13:30 $
  *
@@ -7,7 +7,7 @@
  *
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights
+ * Copyright (c) 1999-2001 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,108 +65,35 @@
 package org.apache.catalina;
 
 
-import java.util.EventObject;
-
-
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * A <b>ContainerServlet</b> is a servlet that has access to Catalina
+ * internal functionality, and is loaded from the Catalina class loader
+ * instead of the web application class loader.  The property setter
+ * methods must be called by the container whenever a new instance of
+ * this servlet is put into service.
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+public interface ContainerServlet {
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * Return the Wrapper with which this Servlet is associated.
      */
-    public Object getData() {
-
-        return (this.data);
-
-    }
+    public Wrapper getWrapper();
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * Set the Wrapper with which this Servlet is associated.
+     *
+     * @param wrapper The new associated Wrapper
      */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
-
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
-
-    }
+    public void setWrapper(Wrapper wrapper);
 
 
 }

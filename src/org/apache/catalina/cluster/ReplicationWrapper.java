@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/cluster/ReplicationWrapper.java,v 1.1 2001/05/04 20:48:02 bip Exp $
+ * $Revision: 1.1 $
+ * $Date: 2001/05/04 20:48:02 $
  *
  * ====================================================================
  *
@@ -61,112 +61,75 @@
  *
  */
 
+package org.apache.catalina.cluster;
 
-package org.apache.catalina;
-
-
-import java.util.EventObject;
-
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * A ReplicationWrapper, used when sending and receiving multicast
+ * data, wrapped is the data and the senderId which is used for
+ * identification.
  *
- * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @author Bip Thelin
+ * @version $Revision: 1.1 $, $Date: 2001/05/04 20:48:02 $
  */
-
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
+public final class ReplicationWrapper implements Serializable {
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * Our buffer to hold the stream
+     */
+    private byte[] _buf = null;
+
+    /**
+     * Our sender Id
+     */
+    private String senderId = null;
+
+    /**
+     * Construct a new ReplicationWrapper
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
+    public ReplicationWrapper(byte[] b, String senderId) {
+        this.senderId = senderId;
+        _buf = b;
     }
 
-
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * Write our stream to the <code>OutputStream</code> provided.
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
+     * @param out the OutputStream to write this stream to
+     * @exception IOException if an input/output error occurs
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
+    public final void writeTo(OutputStream out) throws IOException {
+        out.write(_buf);
     }
 
-
-    // ----------------------------------------------------- Instance Variables
-
-
     /**
-     * The event data associated with this event.
+     * return our internal data as a array of bytes
+     *
+     * @return a our data
      */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
-
-
-    // ------------------------------------------------------------- Properties
-
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
-
+    public final byte[] getDataStream() {
+        return(_buf);
     }
 
-
     /**
-     * Return the Lifecycle on which this event occurred.
+     * Set the sender id for this wrapper
+     *
+     * @param senderId The sender id
      */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
+    public final void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
 
-
     /**
-     * Return the event type of this event.
+     * get the sender id for this wrapper
+     *
+     * @return The sender Id associated with this wrapper
      */
-    public String getType() {
-
-        return (this.type);
-
+    public final String getSenderId() {
+        return(this.senderId);
     }
-
-
 }

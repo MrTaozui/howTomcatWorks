@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/ServerFactory.java,v 1.1 2001/08/23 22:15:43 craigmcc Exp $
+ * $Revision: 1.1 $
+ * $Date: 2001/08/23 22:15:43 $
  *
  * ====================================================================
  *
@@ -65,106 +65,54 @@
 package org.apache.catalina;
 
 
-import java.util.EventObject;
-
-
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * <p><strong>ServerFactory</strong> allows the registration of the
+ * (singleton) <code>Server</code> instance for this JVM, so that it
+ * can be accessed independently of any existing reference to the
+ * component hierarchy.  This is important for administration tools
+ * that are built around the internal component implementation classes.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.1 $ $Date: 2001/08/23 22:15:43 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
+public class ServerFactory {
 
 
-    // ----------------------------------------------------------- Constructors
+    // ------------------------------------------------------- Static Variables
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * The singleton <code>Server</code> instance for this JVM.
+     */
+    private static Server server = null;
+
+
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Return the singleton <code>Server</code> instance for this JVM.
+     */
+    public static Server getServer() {
+
+        return (server);
+
+    }
+
+
+    /**
+     * Set the singleton <code>Server</code> instance for this JVM.  This
+     * method must <strong>only</strong> be called from a constructor of
+     * the (singleton) <code>Server</code> instance that is created for
+     * this execution of Catalina.
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
+     * @param theServer The new singleton instance
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
+    public static void setServer(Server theServer) {
 
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
-
-
-    // ------------------------------------------------------------- Properties
-
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
-
-    }
-
-
-    /**
-     * Return the Lifecycle on which this event occurred.
-     */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
-
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
+        if (server == null)
+            server = theServer;
 
     }
 

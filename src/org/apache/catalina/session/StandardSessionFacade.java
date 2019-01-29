@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/session/StandardSessionFacade.java,v 1.1 2001/05/14 04:07:55 remm Exp $
+ * $Revision: 1.1 $
+ * $Date: 2001/05/14 04:07:55 $
  *
  * ====================================================================
  *
@@ -62,56 +62,44 @@
  */
 
 
-package org.apache.catalina;
+package org.apache.catalina.session;
 
 
-import java.util.EventObject;
+import java.util.Enumeration;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionContext;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Facade for the StandardSession object.
  *
- * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @author Remy Maucherat
+ * @version $Revision: 1.1 $ $Date: 2001/05/14 04:07:55 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
+public class StandardSessionFacade
+    implements HttpSession {
 
 
     // ----------------------------------------------------------- Constructors
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
+     * Construct a new session facade.
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
+    public StandardSessionFacade(StandardSession session) {
+        super();
+        this.session = (HttpSession) session;
     }
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
+     * Construct a new session facade.
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
+    public StandardSessionFacade(HttpSession session) {
+        super();
+        this.session = session;
     }
 
 
@@ -119,53 +107,97 @@ public final class LifecycleEvent
 
 
     /**
-     * The event data associated with this event.
+     * Wrapped session object.
      */
-    private Object data = null;
+    private HttpSession session = null;
 
 
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
+    // ---------------------------------------------------- HttpSession Methods
 
 
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
-
-
-    // ------------------------------------------------------------- Properties
-
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
-
+    public long getCreationTime() {
+        return session.getCreationTime();
     }
 
 
-    /**
-     * Return the Lifecycle on which this event occurred.
-     */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
+    public String getId() {
+        return session.getId();
     }
 
 
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
+    public long getLastAccessedTime() {
+        return session.getLastAccessedTime();
+    }
 
-        return (this.type);
 
+    public ServletContext getServletContext() {
+        // FIXME : Facade this object ?
+        return session.getServletContext();
+    }
+
+
+    public void setMaxInactiveInterval(int interval) {
+        session.setMaxInactiveInterval(interval);
+    }
+
+
+    public int getMaxInactiveInterval() {
+        return session.getMaxInactiveInterval();
+    }
+
+
+    public HttpSessionContext getSessionContext() {
+        return session.getSessionContext();
+    }
+
+
+    public Object getAttribute(String name) {
+        return session.getAttribute(name);
+    }
+
+
+    public Object getValue(String name) {
+        return session.getAttribute(name);
+    }
+
+
+    public Enumeration getAttributeNames() {
+        return session.getAttributeNames();
+    }
+
+
+    public String[] getValueNames() {
+        return session.getValueNames();
+    }
+
+
+    public void setAttribute(String name, Object value) {
+        session.setAttribute(name, value);
+    }
+
+
+    public void putValue(String name, Object value) {
+        session.setAttribute(name, value);
+    }
+
+
+    public void removeAttribute(String name) {
+        session.removeAttribute(name);
+    }
+
+
+    public void removeValue(String name) {
+        session.removeAttribute(name);
+    }
+
+
+    public void invalidate() {
+        session.invalidate();
+    }
+
+
+    public boolean isNew() {
+        return session.isNew();
     }
 
 

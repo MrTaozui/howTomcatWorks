@@ -1,13 +1,9 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
- *
  * ====================================================================
  *
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights
+ * Copyright (c) 1999 The Apache Software Foundation.  All rights 
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -15,7 +11,7 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *    notice, this list of conditions and the following disclaimer. 
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -23,15 +19,15 @@
  *    distribution.
  *
  * 3. The end-user documentation included with the redistribution, if
- *    any, must include the following acknowlegement:
- *       "This product includes software developed by the
+ *    any, must include the following acknowlegement:  
+ *       "This product includes software developed by the 
  *        Apache Software Foundation (http://www.apache.org/)."
  *    Alternately, this acknowlegement may appear in the software itself,
  *    if and wherever such third-party acknowlegements normally appear.
  *
  * 4. The names "The Jakarta Project", "Tomcat", and "Apache Software
  *    Foundation" must not be used to endorse or promote products derived
- *    from this software without prior written permission. For written
+ *    from this software without prior written permission. For written 
  *    permission, please contact apache@apache.org.
  *
  * 5. Products derived from this software may not be called "Apache"
@@ -59,112 +55,100 @@
  *
  * [Additional notices, if required by prior licensing conditions]
  *
- */
+ */ 
 
+package org.apache.catalina.util;
 
-package org.apache.catalina;
-
-
-import java.util.EventObject;
-
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.text.SimpleDateFormat;
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
- *
- * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * Utility class to generate HTTP dates.
+ * 
+ * @author Remy Maucherat
  */
-
-public final class LifecycleEvent
-    extends EventObject {
+public final class FastHttpDateFormat {
 
 
-    // ----------------------------------------------------------- Constructors
+    // -------------------------------------------------------------- Variables
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
+     * HTTP date format.
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
+    protected static SimpleDateFormat format = 
+        new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 
-        this(lifecycle, type, null);
+
+    protected final static TimeZone gmtZone = TimeZone.getTimeZone("GMT");
+
+
+    /**
+     * GMT timezone - all HTTP dates are on GMT
+     */
+    static {
+        format.setTimeZone(gmtZone);
+    }
+
+
+    /**
+     * Instant on which the currentDate object was generated.
+     */
+    protected static long currentDateGenerated = 0L;
+
+
+    /**
+     * Current formatted date.
+     */
+    protected static String currentDate = null;
+
+
+    /**
+     * Date cache.
+     */
+    protected static HashMap dateCache = new HashMap();
+
+
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Get the current date in HTTP format.
+     */
+    public static String getCurrentDate() {
+
+        long now = System.currentTimeMillis();
+        if ((now - currentDateGenerated) > 1000) {
+            synchronized (format) {
+                if ((now - currentDateGenerated) > 1000) {
+                    currentDateGenerated = now;
+                    currentDate = format.format(new Date(now));
+                }
+            }
+        }
+        return currentDate;
 
     }
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
+     * Get the HTTP format of the specified date.
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
+    public static String getDate(Date date) {
 
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
+        String cachedDate = (String) dateCache.get(date);
+        if (cachedDate != null)
+            return cachedDate;
 
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
-
-
-    // ------------------------------------------------------------- Properties
-
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
-
-    }
-
-
-    /**
-     * Return the Lifecycle on which this event occurred.
-     */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
-
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
+        String newDate = null;
+        synchronized (format) {
+            newDate = format.format(date);
+            dateCache.put(date, newDate);
+        }
+        return newDate;
 
     }
 

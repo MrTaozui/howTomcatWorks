@@ -1,5 +1,5 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/ContainerListener.java,v 1.3 2001/07/22 20:13:30 pier Exp $
  * $Revision: 1.3 $
  * $Date: 2001/07/22 20:13:30 $
  *
@@ -65,108 +65,24 @@
 package org.apache.catalina;
 
 
-import java.util.EventObject;
-
-
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Interface defining a listener for significant Container generated events.
+ * Note that "container start" and "container stop" events are normally
+ * LifecycleEvents, not ContainerEvents.
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
+public interface ContainerListener {
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * Acknowledge the occurrence of the specified event.
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
+     * @param event ContainerEvent that has occurred
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
-
-
-    // ------------------------------------------------------------- Properties
-
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
-
-    }
-
-
-    /**
-     * Return the Lifecycle on which this event occurred.
-     */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
-
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
-
-    }
+    public void containerEvent(ContainerEvent event);
 
 
 }

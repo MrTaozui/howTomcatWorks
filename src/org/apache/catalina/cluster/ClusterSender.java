@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/cluster/ClusterSender.java,v 1.2 2001/07/22 20:25:06 pier Exp $
+ * $Revision: 1.2 $
+ * $Date: 2001/07/22 20:25:06 $
  *
  * ====================================================================
  *
@@ -61,112 +61,95 @@
  *
  */
 
+package org.apache.catalina.cluster;
 
-package org.apache.catalina;
-
-
-import java.util.EventObject;
-
+import org.apache.catalina.Logger;
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * This class is responsible for sending outgoing packets to a Cluster.
+ * Different Implementations may use different protocol to
+ * communicate within the Cluster.
  *
- * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @author Bip Thelin
+ * @version $Revision: 1.2 $, $Date: 2001/07/22 20:25:06 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
+public interface ClusterSender {
 
-
-    // ----------------------------------------------------------- Constructors
-
+    // --------------------------------------------------------- Public Methods
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * The senderId is a identifier used to identify different
+     * packages being sent in a Cluster. Each package sent through
+     * the concrete implementation of this interface will have
+     * the senderId set at runtime. Usually the senderId is the
+     * name of the component that is using this <code>ClusterSender</code>
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
+     * @param senderId The senderId to use
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
+    public void setSenderId(String senderId);
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * get the senderId used to identify messages being sent in a Cluster.
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
+     * @return The senderId for this ClusterSender
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
+    public String getSenderId();
 
     /**
-     * The event data associated with this event.
+     * Set the debug detail level for this component.
+     *
+     * @param debug The debug level
      */
-    private Object data = null;
-
+    public void setDebug(int debug);
 
     /**
-     * The Lifecycle on which this event occurred.
+     * Get the debug level for this component
+     *
+     * @return The debug level
      */
-    private Lifecycle lifecycle = null;
-
+    public int getDebug();
 
     /**
-     * The event type this instance represents.
+     * Set the Logger for this component.
+     *
+     * @param debug The Logger to use with this component.
      */
-    private String type = null;
-
-
-    // ------------------------------------------------------------- Properties
-
+    public void setLogger(Logger logger);
 
     /**
-     * Return the event data of this event.
+     * Get the Logger for this component
+     *
+     * @return The Logger associated with this component.
      */
-    public Object getData() {
-
-        return (this.data);
-
-    }
-
+    public Logger getLogger();
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * The log method to use in the implementation
+     *
+     * @param message The message to be logged.
      */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
-
+    public void log(String message);
 
     /**
-     * Return the event type of this event.
+     * Send an array of bytes, the implementation of this
+     * <code>ClusterSender</code> is responsible for modifying
+     * the bytearray to something that it can use. Before anything
+     * is sent it is transformed into a ReplicationWrapper object
+     * and the right senderId is set.
+     *
+     * @param b the bytearray to send
      */
-    public String getType() {
+    public void send(byte[] b);
 
-        return (this.type);
-
-    }
-
-
+    /**
+     * Send an object, the implementation of this
+     * <code>ClusterSender</code> is responsible for modifying
+     * the Object to something that it can use. Before anything
+     * is sent it is transformed into a ReplicationWrapper object
+     * and the right senderId is set.
+     *
+     * @param o The object to send
+     */
+    public void send(Object o);
 }

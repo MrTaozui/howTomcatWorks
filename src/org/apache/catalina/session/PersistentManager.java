@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/session/PersistentManager.java,v 1.10 2001/07/22 20:25:12 pier Exp $
+ * $Revision: 1.10 $
+ * $Date: 2001/07/22 20:25:12 $
  *
  * ====================================================================
  *
@@ -62,111 +62,62 @@
  */
 
 
-package org.apache.catalina;
-
-
-import java.util.EventObject;
-
+package org.apache.catalina.session;
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Implementation of the <b>Manager</b> interface that makes use of
+ * a Store to swap active Sessions to disk. It can be configured to
+ * achieve several different goals:
  *
- * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * <li>Persist sessions across restarts of the Container</li>
+ * <li>Fault tolerance, keep sessions backed up on disk to allow
+ *     recovery in the event of unplanned restarts.</li>
+ * <li>Limit the number of active sessions kept in memory by
+ *     swapping less active sessions out to disk.</li>
+ *
+ * @version $Revision: 1.10 $
+ * @author Kief Morris (kief@kief.com)
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
+public final class PersistentManager extends PersistentManagerBase {
 
 
     // ----------------------------------------------------- Instance Variables
 
 
     /**
-     * The event data associated with this event.
+     * The descriptive information about this implementation.
      */
-    private Object data = null;
+    private static final String info = "PersistentManager/1.0";
 
 
     /**
-     * The Lifecycle on which this event occurred.
+     * The descriptive name of this Manager implementation (for logging).
      */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+    protected static String name = "PersistentManager";
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * Return descriptive information about this Manager implementation and
+     * the corresponding version number, in the format
+     * <code>&lt;description&gt;/&lt;version&gt;</code>.
      */
-    public Object getData() {
+    public String getInfo() {
 
-        return (this.data);
+        return (this.info);
 
     }
-
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * Return the descriptive short name of this Manager implementation.
      */
-    public Lifecycle getLifecycle() {
+    public String getName() {
 
-        return (this.lifecycle);
+        return (name);
 
     }
+ }
 
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
-
-    }
-
-
-}

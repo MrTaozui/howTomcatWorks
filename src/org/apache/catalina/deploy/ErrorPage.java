@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/deploy/ErrorPage.java,v 1.4 2001/07/22 20:25:10 pier Exp $
+ * $Revision: 1.4 $
+ * $Date: 2001/07/22 20:25:10 $
  *
  * ====================================================================
  *
@@ -62,109 +62,153 @@
  */
 
 
-package org.apache.catalina;
+package org.apache.catalina.deploy;
 
 
-import java.util.EventObject;
+import org.apache.catalina.util.RequestUtil;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Representation of an error page element for a web application,
+ * as represented in a <code>&lt;error-page&gt;</code> element in the
+ * deployment descriptor.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.4 $ $Date: 2001/07/22 20:25:10 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
+public final class ErrorPage {
 
 
     // ----------------------------------------------------- Instance Variables
 
 
     /**
-     * The event data associated with this event.
+     * The error (status) code for which this error page is active.
      */
-    private Object data = null;
+    private int errorCode = 0;
 
 
     /**
-     * The Lifecycle on which this event occurred.
+     * The exception type for which this error page is active.
      */
-    private Lifecycle lifecycle = null;
+    private String exceptionType = null;
 
 
     /**
-     * The event type this instance represents.
+     * The context-relative location to handle this error or exception.
      */
-    private String type = null;
+    private String location = null;
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * Return the error code.
      */
-    public Object getData() {
+    public int getErrorCode() {
 
-        return (this.data);
+        return (this.errorCode);
 
     }
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * Set the error code.
+     *
+     * @param errorCode The new error code
      */
-    public Lifecycle getLifecycle() {
+    public void setErrorCode(int errorCode) {
 
-        return (this.lifecycle);
+        this.errorCode = errorCode;
 
     }
 
 
     /**
-     * Return the event type of this event.
+     * Set the error code (hack for default XmlMapper data type).
+     *
+     * @param errorCode The new error code
      */
-    public String getType() {
+    public void setErrorCode(String errorCode) {
 
-        return (this.type);
+        try {
+            this.errorCode = Integer.parseInt(errorCode);
+        } catch (Throwable t) {
+            this.errorCode = 0;
+        }
+
+    }
+
+
+    /**
+     * Return the exception type.
+     */
+    public String getExceptionType() {
+
+        return (this.exceptionType);
+
+    }
+
+
+    /**
+     * Set the exception type.
+     *
+     * @param exceptionType The new exception type
+     */
+    public void setExceptionType(String exceptionType) {
+
+        this.exceptionType = exceptionType;
+
+    }
+
+
+    /**
+     * Return the location.
+     */
+    public String getLocation() {
+
+        return (this.location);
+
+    }
+
+
+    /**
+     * Set the location.
+     *
+     * @param location The new location
+     */
+    public void setLocation(String location) {
+
+        //        if ((location == null) || !location.startsWith("/"))
+        //            throw new IllegalArgumentException
+        //                ("Error Page Location must start with a '/'");
+        this.location = RequestUtil.URLDecode(location);
+
+    }
+
+
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Render a String representation of this object.
+     */
+    public String toString() {
+
+        StringBuffer sb = new StringBuffer("ErrorPage[");
+        if (exceptionType == null) {
+            sb.append("errorCode=");
+            sb.append(errorCode);
+        } else {
+            sb.append("exceptionType=");
+            sb.append(exceptionType);
+        }
+        sb.append(", location=");
+        sb.append(location);
+        sb.append("]");
+        return (sb.toString());
 
     }
 

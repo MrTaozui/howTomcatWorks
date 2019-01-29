@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/deploy/ApplicationParameter.java,v 1.3 2001/09/09 00:48:11 craigmcc Exp $
  * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Date: 2001/09/09 00:48:11 $
  *
  * ====================================================================
  *
@@ -62,109 +62,103 @@
  */
 
 
-package org.apache.catalina;
-
-
-import java.util.EventObject;
+package org.apache.catalina.deploy;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Representation of a context initialization parameter that is configured
+ * in the server configuration file, rather than the application deployment
+ * descriptor.  This is convenient for establishing default values (which
+ * may be configured to allow application overrides or not) without having
+ * to modify the application deployment descriptor itself.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.3 $ $Date: 2001/09/09 00:48:11 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+public final class ApplicationParameter {
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * The description of this environment entry.
      */
-    public Object getData() {
+    private String description = null;
 
-        return (this.data);
+    public String getDescription() {
+        return (this.description);
+    }
 
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * The name of this application parameter.
      */
-    public Lifecycle getLifecycle() {
+    private String name = null;
 
-        return (this.lifecycle);
+    public String getName() {
+        return (this.name);
+    }
 
+    public void setName(String name) {
+        this.name = name;
     }
 
 
     /**
-     * Return the event type of this event.
+     * Does this application parameter allow overrides by the application
+     * deployment descriptor?
      */
-    public String getType() {
+    private boolean override = true;
 
-        return (this.type);
+    public boolean getOverride() {
+        return (this.override);
+    }
+
+    public void setOverride(boolean override) {
+        this.override = override;
+    }
+
+
+    /**
+     * The value of this application parameter.
+     */
+    private String value = null;
+
+    public String getValue() {
+        return (this.value);
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Return a String representation of this object.
+     */
+    public String toString() {
+
+        StringBuffer sb = new StringBuffer("ApplicationParameter[");
+        sb.append("name=");
+        sb.append(name);
+        if (description != null) {
+            sb.append(", description=");
+            sb.append(description);
+        }
+        sb.append(", value=");
+        sb.append(value);
+        sb.append(", override=");
+        sb.append(override);
+        sb.append("]");
+        return (sb.toString());
 
     }
 

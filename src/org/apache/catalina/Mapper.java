@@ -1,5 +1,5 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/Mapper.java,v 1.3 2001/07/22 20:13:30 pier Exp $
  * $Revision: 1.3 $
  * $Date: 2001/07/22 20:13:30 $
  *
@@ -65,108 +65,68 @@
 package org.apache.catalina;
 
 
-import java.util.EventObject;
-
-
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Interface defining methods that a parent Container may implement to select
+ * a subordinate Container to process a particular Request, optionally
+ * modifying the properties of the Request to reflect the selections made.
+ * <p>
+ * A typical Container may be associated with a single Mapper that processes
+ * all requests to that Container, or a Mapper per request protocol that allows
+ * the same Container to support multiple protocols at once.
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+public interface Mapper {
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * Return the Container with which this Mapper is associated.
      */
-    public Object getData() {
-
-        return (this.data);
-
-    }
+    public Container getContainer();
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * Set the Container with which this Mapper is associated.
+     *
+     * @param container The newly associated Container
+     *
+     * @exception IllegalArgumentException if this Container is not
+     *  acceptable to this Mapper
      */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
+    public void setContainer(Container container);
 
 
     /**
-     * Return the event type of this event.
+     * Return the protocol for which this Mapper is responsible.
      */
-    public String getType() {
+    public String getProtocol();
 
-        return (this.type);
 
-    }
+    /**
+     * Set the protocol for which this Mapper is responsible.
+     *
+     * @param protocol The newly associated protocol
+     */
+    public void setProtocol(String protocol);
+
+
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Return the child Container that should be used to process this Request,
+     * based upon its characteristics.  If no such child Container can be
+     * identified, return <code>null</code> instead.
+     *
+     * @param request Request being processed
+     * @param update Update the Request to reflect the mapping selection?
+     */
+    public Container map(Request request, boolean update);
 
 
 }

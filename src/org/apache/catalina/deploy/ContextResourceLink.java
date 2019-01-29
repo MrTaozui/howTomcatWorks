@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/deploy/ContextResourceLink.java,v 1.3 2002/06/08 07:24:59 remm Exp $
  * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Date: 2002/06/08 07:24:59 $
  *
  * ====================================================================
  *
@@ -62,110 +62,105 @@
  */
 
 
-package org.apache.catalina;
-
-
-import java.util.EventObject;
+package org.apache.catalina.deploy;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Representation of a resource link for a web application, as
+ * represented in a <code>&lt;ResourceLink&gt;</code> element in the
+ * server configuration file.
  *
- * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @author Remy Maucherat
+ * @version $Revision: 1.3 $ $Date: 2002/06/08 07:24:59 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+public final class ContextResourceLink {
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * The name of this resource.
      */
-    public Object getData() {
+    private String name = null;
 
-        return (this.data);
+    public String getName() {
+        return (this.name);
+    }
 
+    public void setName(String name) {
+        this.name = name;
     }
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * The type of this resource.
      */
-    public Lifecycle getLifecycle() {
+    private String type = null;
 
-        return (this.lifecycle);
-
-    }
-
-
-    /**
-     * Return the event type of this event.
-     */
     public String getType() {
-
         return (this.type);
+    }
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
+
+    /**
+     * The global name of this resource.
+     */
+    private String global = null;
+
+    public String getGlobal() {
+        return (this.global);
+    }
+
+    public void setGlobal(String global) {
+        this.global = global;
+    }
+
+
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Return a String representation of this object.
+     */
+    public String toString() {
+
+        StringBuffer sb = new StringBuffer("ContextResourceLink[");
+        sb.append("name=");
+        sb.append(name);
+        if (type != null) {
+            sb.append(", type=");
+            sb.append(type);
+        }
+        if (global != null) {
+            sb.append(", global=");
+            sb.append(global);
+        }
+        sb.append("]");
+        return (sb.toString());
+
+    }
+
+
+    // -------------------------------------------------------- Package Methods
+
+
+    /**
+     * The NamingResources with which we are associated (if any).
+     */
+    protected NamingResources resources = null;
+
+    public NamingResources getNamingResources() {
+        return (this.resources);
+    }
+
+    void setNamingResources(NamingResources resources) {
+        this.resources = resources;
     }
 
 

@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/deploy/FilterMap.java,v 1.3 2001/07/22 20:25:10 pier Exp $
  * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Date: 2001/07/22 20:25:10 $
  *
  * ====================================================================
  *
@@ -62,109 +62,92 @@
  */
 
 
-package org.apache.catalina;
+package org.apache.catalina.deploy;
 
 
-import java.util.EventObject;
+import org.apache.catalina.util.RequestUtil;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Representation of a filter mapping for a web application, as represented
+ * in a <code>&lt;filter-mapping&gt;</code> element in the deployment
+ * descriptor.  Each filter mapping must contain a filter name plus either
+ * a URL pattern or a servlet name.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.3 $ $Date: 2001/07/22 20:25:10 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+public final class FilterMap {
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * The name of this filter to be executed when this mapping matches
+     * a particular request.
      */
-    public Object getData() {
+    private String filterName = null;
 
-        return (this.data);
+    public String getFilterName() {
+        return (this.filterName);
+    }
 
+    public void setFilterName(String filterName) {
+        this.filterName = filterName;
     }
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * The servlet name this mapping matches.
      */
-    public Lifecycle getLifecycle() {
+    private String servletName = null;
 
-        return (this.lifecycle);
+    public String getServletName() {
+        return (this.servletName);
+    }
 
+    public void setServletName(String servletName) {
+        this.servletName = servletName;
     }
 
 
     /**
-     * Return the event type of this event.
+     * The URL pattern this mapping matches.
      */
-    public String getType() {
+    private String urlPattern = null;
 
-        return (this.type);
+    public String getURLPattern() {
+        return (this.urlPattern);
+    }
+
+    public void setURLPattern(String urlPattern) {
+        this.urlPattern = RequestUtil.URLDecode(urlPattern);
+    }
+
+
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Render a String representation of this object.
+     */
+    public String toString() {
+
+        StringBuffer sb = new StringBuffer("FilterMap[");
+        sb.append("filterName=");
+        sb.append(this.filterName);
+        if (servletName != null) {
+            sb.append(", servletName=");
+            sb.append(servletName);
+        }
+        if (urlPattern != null) {
+            sb.append(", urlPattern=");
+            sb.append(urlPattern);
+        }
+        sb.append("]");
+        return (sb.toString());
 
     }
 

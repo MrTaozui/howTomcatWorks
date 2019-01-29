@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/cluster/ClusterMemberInfo.java,v 1.4 2001/12/21 21:15:44 craigmcc Exp $
+ * $Revision: 1.4 $
+ * $Date: 2001/12/21 21:15:44 $
  *
  * ====================================================================
  *
@@ -61,112 +61,56 @@
  *
  */
 
+package org.apache.catalina.cluster;
 
-package org.apache.catalina;
-
-
-import java.util.EventObject;
-
+import java.io.Serializable;
+import org.apache.catalina.util.ServerInfo;
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Class that represents a member in a Cluster, keeps information
+ * that can be used when implementing Classes thats utilizing a Cluster.
  *
- * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @author Bip Thelin
+ * @version $Revision: 1.4 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
+public final class ClusterMemberInfo implements Serializable {
 
     // ----------------------------------------------------- Instance Variables
 
+    private static String clusterName = null;
 
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
+    private static String hostName = null;
 
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
-
+    private static String clusterInfo = null;
 
     // ------------------------------------------------------------- Properties
 
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
-
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
     }
 
-
-    /**
-     * Return the Lifecycle on which this event occurred.
-     */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
+    public String getClusterName() {
+        return(this.clusterName);
     }
 
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
-
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
     }
 
+    public String getHostName() {
+        return(this.hostName);
+    }
 
+    public String getServerVersion() {
+        return(ServerInfo.getServerInfo());
+    }
+
+    public void setClusterInfo(String clusterInfo) {
+        this.clusterInfo = clusterInfo;
+    }
+
+    public String getClusterInfo() {
+        return(this.clusterInfo);
+    }
 }

@@ -1,13 +1,12 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/Role.java,v 1.2 2002/02/03 00:56:57 craigmcc Exp $
+ * $Revision: 1.2 $
+ * $Date: 2002/02/03 00:56:57 $
  *
  * ====================================================================
- *
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights
+ * Copyright (c) 2002 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,108 +64,58 @@
 package org.apache.catalina;
 
 
-import java.util.EventObject;
+import java.security.Principal;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * <p>Abstract representation of a security role, suitable for use in
+ * environments like JAAS that want to deal with <code>Principals</code>.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.2 $ $Date: 2002/02/03 00:56:57 $
+ * @since 4.1
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+public interface Role extends Principal {
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * Return the description of this role.
      */
-    public Object getData() {
-
-        return (this.data);
-
-    }
+    public String getDescription();
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * Set the description of this role.
+     *
+     * @param description The new description
      */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
+    public void setDescription(String description);
 
 
     /**
-     * Return the event type of this event.
+     * Return the role name of this role, which must be unique
+     * within the scope of a {@link UserDatabase}.
      */
-    public String getType() {
+    public String getRolename();
 
-        return (this.type);
 
-    }
+    /**
+     * Set the role name of this role, which must be unique
+     * within the scope of a {@link UserDatabase}.
+     *
+     * @param rolename The new role name
+     */
+    public void setRolename(String rolename);
+
+
+    /**
+     * Return the {@link UserDatabase} within which this Role is defined.
+     */
+    public UserDatabase getUserDatabase();
 
 
 }

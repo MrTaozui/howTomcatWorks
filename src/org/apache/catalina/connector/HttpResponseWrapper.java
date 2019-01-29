@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/connector/HttpResponseWrapper.java,v 1.4 2002/03/18 07:15:39 remm Exp $
+ * $Revision: 1.4 $
+ * $Date: 2002/03/18 07:15:39 $
  *
  * ====================================================================
  *
@@ -62,109 +62,117 @@
  */
 
 
-package org.apache.catalina;
+package org.apache.catalina.connector;
 
 
-import java.util.EventObject;
+import org.apache.catalina.HttpResponse;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Abstract convenience class that wraps a Catalina-internal <b>HttpResponse</b>
+ * object.  By default, all methods are delegated to the wrapped response,
+ * but subclasses can override individual methods as required to provide the
+ * functionality that they require.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.4 $ $Date: 2002/03/18 07:15:39 $
+ * @deprecated
  */
 
-public final class LifecycleEvent
-    extends EventObject {
+public abstract class HttpResponseWrapper
+    extends ResponseWrapper
+    implements HttpResponse {
 
 
     // ----------------------------------------------------------- Constructors
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * Construct a wrapper for the specified response.
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
+     * @param response The response to be wrapped
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
+    public HttpResponseWrapper(HttpResponse response) {
 
-        this(lifecycle, type, null);
+        super(response);
 
     }
 
 
+    // --------------------------------------------------------- Public Methods
+
+
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * Return the value for the specified header, or <code>null</code> if this
+     * header has not been set.  If more than one value was added for this
+     * name, only the first is returned; use getHeaderValues() to retrieve all
+     * of them.
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
+     * @param name Header name to look up
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
+    public String getHeader(String name) {
 
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
-
-
-    // ------------------------------------------------------------- Properties
-
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
+        return (((HttpResponse) response).getHeader(name));
 
     }
 
 
     /**
-     * Return the Lifecycle on which this event occurred.
+     * Return an array of all the header names set for this response, or
+     * a zero-length array if no headers have been set.
      */
-    public Lifecycle getLifecycle() {
+    public String[] getHeaderNames() {
 
-        return (this.lifecycle);
+        return (((HttpResponse) response).getHeaderNames());
 
     }
 
 
     /**
-     * Return the event type of this event.
+     * Return an array of all the header values associated with the
+     * specified header name, or an zero-length array if there are no such
+     * header values.
+     *
+     * @param name Header name to look up
      */
-    public String getType() {
+    public String[] getHeaderValues(String name) {
 
-        return (this.type);
+        return (((HttpResponse) response).getHeaderValues(name));
+
+    }
+
+
+    /**
+     * Return the error message that was set with <code>sendError()</code>
+     * for this response.
+     */
+    public String getMessage() {
+
+        return (((HttpResponse) response).getMessage());
+
+    }
+
+
+    /**
+     * Return the HTTP status code associated with this Response.
+     */
+    public int getStatus() {
+
+        return (((HttpResponse) response).getStatus());
+
+    }
+
+
+    /**
+     * Reset this response, and specify the values for the HTTP status code
+     * and corresponding message.
+     *
+     * @exception IllegalStateException if this response has already been
+     *  committed
+     */
+    public void reset(int status, String message) {
+
+        ((HttpResponse) response).reset(status, message);
 
     }
 

@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/deploy/ResourceParams.java,v 1.4 2002/06/08 07:24:59 remm Exp $
+ * $Revision: 1.4 $
+ * $Date: 2002/06/08 07:24:59 $
  *
  * ====================================================================
  *
@@ -62,110 +62,81 @@
  */
 
 
-package org.apache.catalina;
+package org.apache.catalina.deploy;
 
-
-import java.util.EventObject;
-
+import java.util.Hashtable;
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Representation of additional parameters which will be used to initialize
+ * external resources defined in the web application deployment descriptor.
  *
- * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @author Remy Maucherat
+ * @version $Revision: 1.4 $ $Date: 2002/06/08 07:24:59 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The event data associated with this event.
-     */
-    private Object data = null;
-
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
+public final class ResourceParams {
 
 
     // ------------------------------------------------------------- Properties
 
 
     /**
-     * Return the event data of this event.
+     * The name of this resource parameters. Must be the name of the resource
+     * in the java: namespace.
      */
-    public Object getData() {
+    private String name = null;
 
-        return (this.data);
+    public String getName() {
+        return (this.name);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    private Hashtable resourceParams = new Hashtable();
+
+    public void addParameter(String name, String value) {
+        resourceParams.put(name, value);
+    }
+
+    public Hashtable getParameters() {
+        return resourceParams;
+    }
+
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Return a String representation of this object.
+     */
+    public String toString() {
+
+        StringBuffer sb = new StringBuffer("ResourceParams[");
+        sb.append("name=");
+        sb.append(name);
+        sb.append(", parameters=");
+        sb.append(resourceParams.toString());
+        sb.append("]");
+        return (sb.toString());
 
     }
 
 
+    // -------------------------------------------------------- Package Methods
+
+
     /**
-     * Return the Lifecycle on which this event occurred.
+     * The NamingResources with which we are associated (if any).
      */
-    public Lifecycle getLifecycle() {
+    protected NamingResources resources = null;
 
-        return (this.lifecycle);
-
+    public NamingResources getNamingResources() {
+        return (this.resources);
     }
 
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
-
+    void setNamingResources(NamingResources resources) {
+        this.resources = resources;
     }
 
 

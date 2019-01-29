@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/cluster/ClusterSessionBase.java,v 1.3 2001/07/22 20:25:06 pier Exp $
  * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Date: 2001/07/22 20:25:06 $
  *
  * ====================================================================
  *
@@ -61,112 +61,118 @@
  *
  */
 
+package org.apache.catalina.cluster;
 
-package org.apache.catalina;
-
-
-import java.util.EventObject;
-
+import org.apache.catalina.Logger;
+import org.apache.catalina.util.StringManager;
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * This is an abstract implementation of <code>ClusterSender</code>
+ * and <code>ClusterReceiver</code> which provide basic functionallity
+ * shared by the two components.
  *
- * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @author Bip Thelin
+ * @version $Revision: 1.3 $, $Date: 2001/07/22 20:25:06 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
-
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
+public abstract class ClusterSessionBase {
 
     // ----------------------------------------------------- Instance Variables
 
+    /**
+     * The senderId associated with this component
+     */
+    private String senderId = null;
 
     /**
-     * The event data associated with this event.
+     * The debug level for this component
      */
-    private Object data = null;
-
+    private int debug = 0;
 
     /**
-     * The Lifecycle on which this event occurred.
+     * The Logger associated with this component.
      */
-    private Lifecycle lifecycle = null;
-
+    private Logger logger = null;
 
     /**
-     * The event type this instance represents.
+     * The string manager for this package.
      */
-    private String type = null;
+    protected StringManager sm = StringManager.getManager(Constants.Package);
 
-
-    // ------------------------------------------------------------- Properties
-
+    // --------------------------------------------------------- Public Methods
 
     /**
-     * Return the event data of this event.
+     * The senderId is a identifier used to identify different
+     * packagesin a Cluster. Each package received or send through
+     * the concrete implementation of this interface will have
+     * the senderId set at runtime. Usually the senderId is the
+     * name of the component that is using this component.
+     *
+     * @param senderId The senderId to use
      */
-    public Object getData() {
-
-        return (this.data);
-
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
 
-
     /**
-     * Return the Lifecycle on which this event occurred.
+     * get the senderId used to identify messages being
+     * send or received in a Cluster.
+     *
+     * @return The senderId for this component
      */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
+    public String getSenderId() {
+        return(this.senderId);
     }
 
-
     /**
-     * Return the event type of this event.
+     * Set the debug detail level for this component.
+     *
+     * @param debug The debug level
      */
-    public String getType() {
-
-        return (this.type);
-
+    public void setDebug(int debug) {
+        this.debug = debug;
     }
 
+    /**
+     * Get the debug level for this component
+     *
+     * @return The debug level
+     */
+    public int getDebug() {
+        return(this.debug);
+    }
 
+    /**
+     * Set the Logger for this component.
+     *
+     * @param debug The Logger to use with this component.
+     */
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
+    /**
+     * Get the Logger for this component
+     *
+     * @return The Logger associated with this component.
+     */
+    public Logger getLogger() {
+        return(this.logger);
+    }
+
+    public abstract String getName();
+
+    /**
+     * The log method to use in the implementation
+     *
+     * @param message The message to be logged.
+     */
+    public void log(String message) {
+        Logger logger = getLogger();
+
+        if(logger != null)
+            logger.log("[Cluster/"+getName()+"]: "+message);
+        else
+            System.out.println("[Cluster/"+getName()+"]: "+message);
+    }
 }

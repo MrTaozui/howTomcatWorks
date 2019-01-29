@@ -1,6 +1,6 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/HttpResponse.java,v 1.5 2001/07/22 20:13:30 pier Exp $
+ * $Revision: 1.5 $
  * $Date: 2001/07/22 20:13:30 $
  *
  * ====================================================================
@@ -65,108 +65,81 @@
 package org.apache.catalina;
 
 
-import java.util.EventObject;
+import javax.servlet.http.Cookie;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * An <b>HttpResponse</b> is the Catalina-internal facade for an
+ * <code>HttpServletResponse</code> that is to be produced,
+ * based on the processing of a corresponding <code>HttpRequest</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.5 $ $Date: 2001/07/22 20:13:30 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
+public interface HttpResponse
+    extends Response {
 
 
-    // ----------------------------------------------------------- Constructors
+    // --------------------------------------------------------- Public Methods
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * Return an array of all cookies set for this response, or
+     * a zero-length array if no cookies have been set.
+     */
+    public Cookie[] getCookies();
+
+
+    /**
+     * Return the value for the specified header, or <code>null</code> if this
+     * header has not been set.  If more than one value was added for this
+     * name, only the first is returned; use getHeaderValues() to retrieve all
+     * of them.
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
+     * @param name Header name to look up
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
+    public String getHeader(String name);
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
+     * Return an array of all the header names set for this response, or
+     * a zero-length array if no headers have been set.
+     */
+    public String[] getHeaderNames();
+
+
+    /**
+     * Return an array of all the header values associated with the
+     * specified header name, or an zero-length array if there are no such
+     * header values.
      *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
+     * @param name Header name to look up
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
+    public String[] getHeaderValues(String name);
 
 
     /**
-     * The event data associated with this event.
+     * Return the error message that was set with <code>sendError()</code>
+     * for this Response.
      */
-    private Object data = null;
+    public String getMessage();
 
 
     /**
-     * The Lifecycle on which this event occurred.
+     * Return the HTTP status code associated with this Response.
      */
-    private Lifecycle lifecycle = null;
+    public int getStatus();
 
 
     /**
-     * The event type this instance represents.
+     * Reset this response, and specify the values for the HTTP status code
+     * and corresponding message.
+     *
+     * @exception IllegalStateException if this response has already been
+     *  committed
      */
-    private String type = null;
-
-
-    // ------------------------------------------------------------- Properties
-
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
-
-    }
-
-
-    /**
-     * Return the Lifecycle on which this event occurred.
-     */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
-
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
-
-    }
+    public void reset(int status, String message);
 
 
 }

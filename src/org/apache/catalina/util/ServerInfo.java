@@ -1,7 +1,7 @@
 /*
- * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/LifecycleEvent.java,v 1.3 2001/07/22 20:13:30 pier Exp $
- * $Revision: 1.3 $
- * $Date: 2001/07/22 20:13:30 $
+ * $Header: /home/cvs/jakarta-tomcat-4.0/catalina/src/share/org/apache/catalina/util/ServerInfo.java,v 1.1 2001/12/21 21:15:45 craigmcc Exp $
+ * $Revision: 1.1 $
+ * $Date: 2001/12/21 21:15:45 $
  *
  * ====================================================================
  *
@@ -62,109 +62,59 @@
  */
 
 
-package org.apache.catalina;
+package org.apache.catalina.util;
 
 
-import java.util.EventObject;
+import java.io.InputStream;
+import java.util.Properties;
 
 
 /**
- * General event for notifying listeners of significant changes on a component
- * that implements the Lifecycle interface.  In particular, this will be useful
- * on Containers, where these events replace the ContextInterceptor concept in
- * Tomcat 3.x.
+ * Simple utility module to make it easy to plug in the server identifier
+ * when integrating Tomcat.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ * @version $Revision: 1.1 $ $Date: 2001/12/21 21:15:45 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
+public class ServerInfo {
 
 
-    // ----------------------------------------------------------- Constructors
+    // ------------------------------------------------------- Static Variables
 
 
     /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
+     * The server information String with which we identify ourselves.
      */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
+    private static String serverInfo = null;
 
-        this(lifecycle, type, null);
+    static {
+
+        try {
+            InputStream is = ServerInfo.class.getResourceAsStream
+                ("/org/apache/catalina/util/ServerInfo.properties");
+            Properties props = new Properties();
+            props.load(is);
+            is.close();
+            serverInfo = props.getProperty("server.info");
+        } catch (Throwable t) {
+            ;
+        }
+        if (serverInfo == null)
+            serverInfo = "Apache Tomcat";
 
     }
 
 
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
-    // ----------------------------------------------------- Instance Variables
+    // --------------------------------------------------------- Public Methods
 
 
     /**
-     * The event data associated with this event.
+     * Return the server identification for this version of Tomcat.
      */
-    private Object data = null;
+    public static String getServerInfo() {
 
-
-    /**
-     * The Lifecycle on which this event occurred.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The event type this instance represents.
-     */
-    private String type = null;
-
-
-    // ------------------------------------------------------------- Properties
-
-
-    /**
-     * Return the event data of this event.
-     */
-    public Object getData() {
-
-        return (this.data);
-
-    }
-
-
-    /**
-     * Return the Lifecycle on which this event occurred.
-     */
-    public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
-    }
-
-
-    /**
-     * Return the event type of this event.
-     */
-    public String getType() {
-
-        return (this.type);
+        return (serverInfo);
 
     }
 
