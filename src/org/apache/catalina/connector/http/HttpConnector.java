@@ -208,6 +208,7 @@ public final class HttpConnector
 
 
     /**
+     * 这个组件是否已经启动
      * Has this component been started yet?
      */
     private boolean started = false;
@@ -233,6 +234,8 @@ public final class HttpConnector
 
 
     /**
+     * 此httpconnector中的synchronization对象
+     * 
      * The thread synchronization object.
      */
     private Object threadSync = new Object();
@@ -944,18 +947,21 @@ public final class HttpConnector
      */
     public void run() {
         // Loop until we receive a shutdown command
-        while (!stopped) {
+        while (!this.stopped) {
             // Accept the next incoming connection from the server socket
             Socket socket = null;
             try {
                 //                if (debug >= 3)
                 //                    log("run: Waiting on serverSocket.accept()");
-                socket = serverSocket.accept();
+                socket = serverSocket.accept(); //接收客户端发来的socket
                 //                if (debug >= 3)
                 //                    log("run: Returned from serverSocket.accept()");
                 if (connectionTimeout > 0)
-                    socket.setSoTimeout(connectionTimeout);
-                socket.setTcpNoDelay(tcpNoDelay);
+                    socket.setSoTimeout(connectionTimeout);// 设置socket连接超时的时间 
+                										//客户端请求和服务端建立连接时，阻塞( read() )时间超过connectTimeout时，就会抛出超时异常
+                		//即建立连接后 一直没有客户端返送数据过来 会抛出超时异常
+                socket.setTcpNoDelay(tcpNoDelay);//禁用nagle算法  客户端 io write-write-read  服务端的io read-write 会使客户端继续等待body达到并延迟ACK才会继续write
+                      // 所以会增加延迟时间  禁用nagle算法不会延迟
             } catch (AccessControlException ace) {
                 log("socket accept security exception", ace);
                 continue;
@@ -964,10 +970,10 @@ public final class HttpConnector
                 //                    log("run: Accept returned IOException", e);
                 try {
                     // If reopening fails, exit
-                    synchronized (threadSync) {
-                        if (started && !stopped)
-                            log("accept error: ", e);
-                        if (!stopped) {
+                    synchronized (this.threadSync) {
+                        if (started && !stopped)//  如果已经启动，和未停止 在catch中 说明发生了异常
+                            log("accept error: ", e);//打印异常
+                        if (!stopped) { // 如果组件还没有停止 可能是创建连接发生了 异常，关闭此前创建的服务，重新进建立一个服务
                             //                    if (debug >= 3)
                             //                        log("run: Closing server socket");
                             serverSocket.close();
@@ -1002,7 +1008,7 @@ public final class HttpConnector
             }
 
             // Hand this socket off to an appropriate processor
-            HttpProcessor processor = createProcessor();
+            HttpProcessor processor = this.createProcessor();// 提交一个socket到 processor
             if (processor == null) {
                 try {
                     log(sm.getString("httpConnector.noProcessor"));
@@ -1014,7 +1020,7 @@ public final class HttpConnector
             }
             //            if (debug >= 3)
             //                log("run: Assigning socket to processor " + processor);
-            processor.assign(socket);
+            processor.assign(socket); //  分派socket
 
             // The processor will recycle itself when it finishes
 
@@ -1038,7 +1044,7 @@ public final class HttpConnector
         log(sm.getString("httpConnector.starting"));
 
         thread = new Thread(this, threadName);
-        thread.setDaemon(true);
+        thread.setDaemon(true); // 设置守护线程
         thread.start();
 
     }
