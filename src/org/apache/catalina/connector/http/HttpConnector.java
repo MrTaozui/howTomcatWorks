@@ -82,6 +82,7 @@ public final class HttpConnector
 
 
     /**
+     * 当前栈中的processor
      * The current number of processors that have been created.
      */
     private int curProcessors = 0;
@@ -119,12 +120,15 @@ public final class HttpConnector
 
 
     /**
+     * 
+     * processor 的最小数量
      * The minimum number of processors to start at initialization time.
      */
     protected int minProcessors = 5;
 
 
     /**
+     * processor 的最大数量
      * The maximum number of processors allowed, or <0 for unlimited.
      */
     private int maxProcessors = 20;
@@ -151,6 +155,7 @@ public final class HttpConnector
 
 
     /**
+     * 代理的名字
      * The server name to which we should pretend requests to this Connector
      * were directed.  This is useful when operating Tomcat behind a proxy
      * server, so that redirects get constructed accurately.  If not specified,
@@ -443,6 +448,7 @@ public final class HttpConnector
 
 
     /**
+     * 返回此组件的调试详细级别
      * Return the debugging detail level for this component.
      */
     public int getDebug() {
@@ -790,16 +796,16 @@ public final class HttpConnector
      */
     private HttpProcessor createProcessor() {
 
-        synchronized (processors) {
+        synchronized (this.processors) {
             if (processors.size() > 0) {
                 // if (debug >= 2)
                 // log("createProcessor: Reusing existing processor");
-                return ((HttpProcessor) processors.pop());
+                return ((HttpProcessor) processors.pop()); // 从栈中弹出一个 processor
             }
             if ((maxProcessors > 0) && (curProcessors < maxProcessors)) {
                 // if (debug >= 2)
                 // log("createProcessor: Creating new processor");
-                return (newProcessor());
+                return (this.newProcessor());
             } else {
                 if (maxProcessors < 0) {
                     // if (debug >= 2)

@@ -103,6 +103,7 @@ public interface HttpRequest extends Request {
 
 
     /**
+     * Locale local = new Locale("zh", "CN");  设置国家地区等
      * Add a Locale to the set of preferred Locales for this Request.  The
      * first added Locale will be the first one returned by getLocales().
      *

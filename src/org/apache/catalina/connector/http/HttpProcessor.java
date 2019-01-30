@@ -71,8 +71,8 @@ final class HttpProcessor
         this.connector = connector;
         this.debug = connector.getDebug();
         this.id = id;
-        this.proxyName = connector.getProxyName();
-        this.proxyPort = connector.getProxyPort();
+        this.proxyName = connector.getProxyName();// 代理的名字
+        this.proxyPort = connector.getProxyPort(); //代理的端口
         this.request = (HttpRequestImpl) connector.createRequest();
         this.response = (HttpResponseImpl) connector.createResponse();
         this.serverPort = connector.getPort();

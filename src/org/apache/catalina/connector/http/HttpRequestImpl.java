@@ -87,7 +87,7 @@ final class HttpRequestImpl
      */
     InetAddress getInet() {
 
-        return (inet);
+        return inet;
 
     }
 
