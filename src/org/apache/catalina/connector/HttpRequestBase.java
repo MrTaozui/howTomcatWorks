@@ -1063,13 +1063,18 @@ public class HttpRequestBase
 
 
     /**
+     * SecurityManager应用场景：当位运行未知的java程序的时候，该程序可能有恶意代码（删除系统文件、重启系统等等）
+     * 为了防止恶意代码对系统的影响，需要对运行的代码的权限进行控制，这时候就需要启用java安全管理器
+     * SecurityManager可以阻止你的浏览器运行不安全的applet；运行tomcat的时候，使用SecurityManager可以保护你的机器不受恶意Servlet、JSP，甚至是疏忽的错误的影响。
+     * 如：<% System.exit(1); %>
+     * Tomcat每次执行这个JSP，tomcat都会退出。使用Java SecurityManager是系统管理员保证服务器安全、可靠地另外一种防线。
      * Return the session associated with this Request, creating one
      * if necessary and requested.
      *
      * @param create Create a new session if one does not exist
      */
     public HttpSession getSession(boolean create) {
-        if( System.getSecurityManager() != null ) {
+        if( System.getSecurityManager() != null ) {// SecurityManager  securityManager = System.getSecurityManager()
             PrivilegedGetSession dp = new PrivilegedGetSession(create);
             return (HttpSession)AccessController.doPrivileged(dp);
         }

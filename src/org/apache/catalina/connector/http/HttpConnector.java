@@ -1014,7 +1014,7 @@ public final class HttpConnector
             }
 
             // Hand this socket off to an appropriate processor
-            HttpProcessor processor = this.createProcessor();// 提交一个socket到 processor
+            HttpProcessor processor = this.createProcessor();// 创建一个 HttpProcessor 初始化一些成员变量参数
             if (processor == null) {
                 try {
                     log(sm.getString("httpConnector.noProcessor"));

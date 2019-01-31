@@ -69,8 +69,8 @@ final class HttpProcessor
 
         super();
         this.connector = connector;
-        this.debug = connector.getDebug();
-        this.id = id;
+        this.debug = connector.getDebug(); //此组件的调试详细级别
+        this.id = id; // curProcessors  当前第多少个
         this.proxyName = connector.getProxyName();// 代理的名字
         this.proxyPort = connector.getProxyPort(); //代理的端口
         this.request = (HttpRequestImpl) connector.createRequest();
@@ -86,6 +86,7 @@ final class HttpProcessor
 
 
     /**
+     * 这是一个 新创建的可用的socket吗？
      * Is there a new socket available?
      */
     private boolean available = false;
