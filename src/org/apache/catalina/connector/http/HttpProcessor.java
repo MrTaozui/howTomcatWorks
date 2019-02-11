@@ -289,7 +289,7 @@ final class HttpProcessor
     synchronized void assign(Socket socket) {
 
         // Wait for the Processor to get the previous Socket
-        while (available) {
+        while (available) {// 是可用的么  assign 之前是不可available的
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -319,15 +319,15 @@ final class HttpProcessor
         // Wait for the Connector to provide a new Socket
         while (!available) {
             try {
-                wait();
+                wait();// 阻塞 并释放持有的锁
             } catch (InterruptedException e) {
             }
         }
 
         // Notify the Connector that we have received this Socket
         Socket socket = this.socket;
-        available = false;
-        notifyAll();
+        this.available = false;
+        notifyAll();// 等待唤醒线程执行完成  ，释放持有的锁，才会继续执行
 
         if ((debug >= 1) && (socket != null))
             log("  The incoming request has been awaited");
@@ -504,6 +504,7 @@ final class HttpProcessor
 
 
     /**
+     * 解析请求头
      * Parse the incoming HTTP request headers, and set the appropriate
      * request headers.
      *
@@ -638,6 +639,7 @@ final class HttpProcessor
 
 
     /**
+     * 解析http请求
      * Parse the incoming HTTP request and set the corresponding HTTP request
      * properties.
      *
@@ -915,15 +917,15 @@ final class HttpProcessor
             try {
                 if (ok) {
 
-                    parseConnection(socket);
-                    parseRequest(input, output);
+                    parseConnection(socket);// 解析连接信息
+                    parseRequest(input, output);// 解析http请求
                     if (!request.getRequest().getProtocol()
                         .startsWith("HTTP/0"))
-                        parseHeaders(input);
+                        parseHeaders(input);// 解析请求头
                     if (http11) {
                         // Sending a request acknowledge back to the client if
                         // requested.
-                        ackRequest(output);
+                        ackRequest(output);  // ack 
                         // If the protocol is HTTP/1.1, chunking is allowed.
                         if (connector.isChunkingAllowed())
                             response.setAllowChunking(true);
@@ -970,7 +972,7 @@ final class HttpProcessor
                 ((HttpServletResponse) response).setHeader
                     ("Date", FastHttpDateFormat.getCurrentDate());
                 if (ok) {
-                    connector.getContainer().invoke(request, response);
+                    connector.getContainer().invoke(request, response);// 调用简单的servlet 容器执行客户端的servlet
                 }
             } catch (ServletException e) {
                 log("process.invoke", e);
@@ -1077,7 +1079,7 @@ final class HttpProcessor
         while (!stopped) {
 
             // Wait for the next socket to be assigned
-            Socket socket = await();
+            Socket socket = await();  //等待着socket的 传送过来
             if (socket == null)
                 continue;
 
@@ -1089,6 +1091,7 @@ final class HttpProcessor
             }
 
             // Finish up this request
+            // 完成这次请求
             connector.recycle(this);
 
         }

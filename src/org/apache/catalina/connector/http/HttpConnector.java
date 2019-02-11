@@ -780,7 +780,7 @@ public final class HttpConnector
 
         //        if (debug >= 2)
         //            log("recycle: Recycling processor " + processor);
-        processors.push(processor);
+        processors.push(processor);// 放入栈中
 
     }
 
@@ -873,8 +873,8 @@ public final class HttpConnector
         HttpProcessor processor = new HttpProcessor(this, curProcessors++);
         if (processor instanceof Lifecycle) {
             try {
-                ((Lifecycle) processor).start();
-            } catch (LifecycleException e) {
+                ((Lifecycle) processor).start();// 处理器开始处理连接过来的socket请求   另起一个线程处理  并等待客户端socket的连接
+                } catch (LifecycleException e) {
                 log("newProcessor", e);
                 return (null);
             }
@@ -951,6 +951,7 @@ public final class HttpConnector
      * The background thread that listens for incoming TCP/IP connections and
      * hands them off to an appropriate processor.
      */
+    //启动线程 serversocket 监听过来的请求 serverSocket.accept()
     public void run() {
         // Loop until we receive a shutdown command
         while (!this.stopped) {
@@ -1014,7 +1015,8 @@ public final class HttpConnector
             }
 
             // Hand this socket off to an appropriate processor
-            HttpProcessor processor = this.createProcessor();// 创建一个 HttpProcessor 初始化一些成员变量参数
+            //连接成功后给此socket 分配一个处理器HttpProcessor
+            HttpProcessor processor = this.createProcessor();//  创建一个 HttpProcessor 初始化一些成员变量参数
             if (processor == null) {
                 try {
                     log(sm.getString("httpConnector.noProcessor"));
@@ -1026,8 +1028,7 @@ public final class HttpConnector
             }
             //            if (debug >= 3)
             //                log("run: Assigning socket to processor " + processor);
-            processor.assign(socket); //  分派socket
-
+            processor.assign(socket); //  分派socket   此时的 HttpProcessor线程 处于阻塞状态，等待客户端socket的分派
             // The processor will recycle itself when it finishes
 
         }
@@ -1171,7 +1172,7 @@ public final class HttpConnector
         this.started = true;
 
         // Start our background thread
-        threadStart();
+        threadStart();//  启动
 
         // Create the specified minimum number of processors
         while (curProcessors < minProcessors) {

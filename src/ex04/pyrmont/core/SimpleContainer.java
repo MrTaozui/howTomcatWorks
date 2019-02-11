@@ -23,6 +23,7 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
 
+//简单容器 servlet 容器
 public class SimpleContainer implements Container {
 
   public static final String WEB_ROOT =
