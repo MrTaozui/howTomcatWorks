@@ -1016,8 +1016,8 @@ public final class HttpConnector
 
             // Hand this socket off to an appropriate processor
             //连接成功后给此socket 分配一个处理器HttpProcessor
-            HttpProcessor processor = this.createProcessor();//  创建一个 HttpProcessor 初始化一些成员变量参数
-            if (processor == null) {
+            HttpProcessor processor = this.createProcessor();//  创建一个 HttpProcessor 初始化一些成员变量参数 并启动线程阻塞等待socket的提交
+            if (processor == null) { // 如果超过了最大得连接数，HttpProcessor池不能提供使用则不对此次http请求进行处理
                 try {
                     log(sm.getString("httpConnector.noProcessor"));
                     socket.close();

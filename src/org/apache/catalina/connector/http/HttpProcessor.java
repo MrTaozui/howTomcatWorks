@@ -291,7 +291,7 @@ final class HttpProcessor
         // Wait for the Processor to get the previous Socket
         while (available) {// 是可用的么  assign 之前是不可available的
             try {
-                wait();
+                wait(); //  HttpPricessor没有处理完，这里就是阻塞状态的
             } catch (InterruptedException e) {
             }
         }
@@ -327,7 +327,8 @@ final class HttpProcessor
         // Notify the Connector that we have received this Socket
         Socket socket = this.socket;
         this.available = false;
-        notifyAll();// 等待唤醒线程执行完成  ，释放持有的锁，才会继续执行
+        notifyAll();// 等待唤醒线程执行完成  ，释放持有的锁，才会继续执行     防止另一个socket 已经到达 assign() 会一直等待（这要等到此processor再次pop出来）
+                    //，唤醒assign()让其下一个
 
         if ((debug >= 1) && (socket != null))
             log("  The incoming request has been awaited");
