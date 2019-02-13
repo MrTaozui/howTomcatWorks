@@ -78,7 +78,7 @@ final class HttpProcessor
         this.serverPort = connector.getPort();
         this.threadName =
           "HttpProcessor[" + connector.getPort() + "][" + id + "]";
-
+        System.out.println("HttpProcessor[" + connector.getPort() + "][" + id + "] 被创建");
     }
 
 
@@ -200,8 +200,8 @@ final class HttpProcessor
     /**
      * The name to register for the background thread.
      */
-    private String threadName = null;
-
+    public String threadName = null;// 为了测试作为公共的
+    // private String threadName = null;
 
     /**
      * The thread synchronization object.
@@ -880,6 +880,14 @@ final class HttpProcessor
      * @param socket The socket on which we are connected to the client
      */
     private void process(Socket socket) {
+    	//以下注释代码模拟请求处理中
+    	System.out.println(threadName+": 处理请求中... process");
+//    	try {
+//			Thread.sleep(5000);
+//		} catch (InterruptedException e1) {
+//			e1.printStackTrace();
+//		}
+    	System.out.println(threadName+":处理请求完成... process");
         boolean ok = true;
         boolean finishResponse = true;
         SocketInputStream input = null;
@@ -1078,7 +1086,7 @@ final class HttpProcessor
 
         // Process requests until we receive a shutdown signal
         while (!stopped) {
-
+        	
             // Wait for the next socket to be assigned
             Socket socket = await();  //等待着socket的 传送过来
             if (socket == null)

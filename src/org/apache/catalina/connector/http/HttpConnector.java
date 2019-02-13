@@ -781,6 +781,7 @@ public final class HttpConnector
         //        if (debug >= 2)
         //            log("recycle: Recycling processor " + processor);
         processors.push(processor);// 放入栈中
+        System.out.println("processor被放入栈中 ："+processor.threadName);
 
     }
 
