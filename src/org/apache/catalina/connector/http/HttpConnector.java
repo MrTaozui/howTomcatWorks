@@ -1176,6 +1176,7 @@ public final class HttpConnector
         threadStart();//  启动
 
         // Create the specified minimum number of processors
+        // 创建初始的processor
         while (curProcessors < minProcessors) {
             if ((maxProcessors > 0) && (curProcessors >= maxProcessors))
                 break;
