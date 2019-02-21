@@ -801,12 +801,13 @@ public final class HttpConnector
             if (processors.size() > 0) {
                 // if (debug >= 2)
                 // log("createProcessor: Reusing existing processor");
-                return ((HttpProcessor) processors.pop()); // 从栈中弹出一个 processor
+                return ((HttpProcessor) processors.pop()); // 从栈中弹出一个 processor  此时的processors线程都是在运行中的状态的。
+                // 因为 newProcessor() 后的线程的状态是等待socket的到来 且run(while(){})的
             }
             if ((maxProcessors > 0) && (curProcessors < maxProcessors)) {
                 // if (debug >= 2)
                 // log("createProcessor: Creating new processor");
-                return (this.newProcessor());
+                return (this.newProcessor());//newProcessor() 后的线程的状态是等待socket的到来 且run(while(){})的
             } else {
                 if (maxProcessors < 0) {
                     // if (debug >= 2)
@@ -1052,7 +1053,7 @@ public final class HttpConnector
         log(sm.getString("httpConnector.starting"));
 
         thread = new Thread(this, threadName);
-        thread.setDaemon(true); // 设置守护线程
+        thread.setDaemon(true); // 设置守护线程  会随主线程的关闭而结束生命周期。
         thread.start();
 
     }
@@ -1173,11 +1174,11 @@ public final class HttpConnector
         this.started = true;
 
         // Start our background thread
-        threadStart();//  启动
+        threadStart();//  启动 开启线程
 
         // Create the specified minimum number of processors
         // 创建初始的processor
-        while (curProcessors < minProcessors) {
+        while (curProcessors < minProcessors) { // 开始创建 processor
             if ((maxProcessors > 0) && (curProcessors >= maxProcessors))
                 break;
             HttpProcessor processor = newProcessor();

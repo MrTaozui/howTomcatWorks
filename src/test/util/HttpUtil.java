@@ -304,7 +304,7 @@ public class HttpUtil {
     	Map<String, String> params = new HashMap<>();
     	params.put("name", "taojj");
     	params.put("age", "18");
-	System.out.println(httpPost("http://localhost:8080/home/home", params, "", ""));
+	System.out.println(httpPost("http://localhost:8080/ModernServlet", params, "", ""));
 }
  
 }

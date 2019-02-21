@@ -86,7 +86,7 @@ final class HttpProcessor
 
 
     /**
-     * 这是一个 新创建的可用的socket吗？
+     * 接收到了一个新的可用的 socket请求了吗？
      * Is there a new socket available?
      */
     private boolean available = false;
@@ -291,7 +291,8 @@ final class HttpProcessor
         // Wait for the Processor to get the previous Socket
         while (available) {// 是可用的么  assign 之前是不可available的
             try {
-                wait(); //  HttpPricessor没有处理完，这里就是阻塞状态的
+            	System.out.println("---------进入了assign wait()-------------------");
+                wait(); //  HttpPricessor没有处理完，这里就是阻塞状态的                
             } catch (InterruptedException e) {
             }
         }
@@ -299,7 +300,7 @@ final class HttpProcessor
         // Store the newly available Socket and notify our thread
         this.socket = socket;
         available = true;
-        notifyAll();
+        notifyAll();// 唤醒这个对象的上等待的所有线程  但是锁还是持有的 必须先释放该锁 推出临界区，被唤醒的线程才能继续执行
 
         if ((debug >= 1) && (socket != null))
             log(" An incoming request is being assigned");
@@ -317,18 +318,18 @@ final class HttpProcessor
     private synchronized Socket await() {
 
         // Wait for the Connector to provide a new Socket
-        while (!available) {
+        while (!this.available) {//是否接收到了socket 
             try {
-                wait();// 阻塞 并释放持有的锁
+                wait();// 阻塞 并释放持有的锁 ---------
             } catch (InterruptedException e) {
             }
         }
 
         // Notify the Connector that we have received this Socket
-        Socket socket = this.socket;
-        this.available = false;
+        Socket socket = this.socket;// 接收到了
+        this.available = false; // 重置状态
         notifyAll();// 等待唤醒线程执行完成  ，释放持有的锁，才会继续执行     防止另一个socket 已经到达 assign() 会一直等待（这要等到此processor再次pop出来）
-                    //，唤醒assign()让其下一个
+                    //，唤醒assign()让其下一个       唤醒该对象上等待的所有线程。
 
         if ((debug >= 1) && (socket != null))
             log("  The incoming request has been awaited");
