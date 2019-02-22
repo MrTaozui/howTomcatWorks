@@ -1102,7 +1102,7 @@ final class HttpProcessor
 
             // Finish up this request
             // 完成这次请求
-            connector.recycle(this);
+            connector.recycle(this); //  完成之后 回收请求
 
         }
 
