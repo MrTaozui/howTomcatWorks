@@ -305,8 +305,10 @@ public class HttpUtil {
     	params.put("name", "taojj");
     	params.put("age", "18");
 	System.out.println(httpPost("http://localhost:8080/ModernServlet", params, "", ""));
+
 //张三提交
-	
+
+
 
 	//李四提交
 
