@@ -306,6 +306,7 @@ public class HttpUtil {
     	params.put("age", "18");
 	System.out.println(httpPost("http://localhost:8080/ModernServlet", params, "", ""));
 	    //添加一
+	//添加二
 }
  
 }
