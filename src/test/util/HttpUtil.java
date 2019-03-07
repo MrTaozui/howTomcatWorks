@@ -304,9 +304,9 @@ public class HttpUtil {
     	Map<String, String> params = new HashMap<>();
     	params.put("name", "taojj");
     	params.put("age", "18");
-
-	System.out.println(httpPost("http://localhost:8080/ModernServlet", params, "", ""));
-// 小A提交
+System.out.println(httpPost("http://localhost:8080/ModernServlet", params, "", ""));
+//小A提交
+//小B提交
 
 }
  
