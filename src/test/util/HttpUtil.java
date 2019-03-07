@@ -306,8 +306,7 @@ public class HttpUtil {
     	params.put("age", "18");
 
 	System.out.println(httpPost("http://localhost:8080/ModernServlet", params, "", ""));
-//本地同事提交了
-	//远程同事提交了
+// 小A提交
 
 }
  
