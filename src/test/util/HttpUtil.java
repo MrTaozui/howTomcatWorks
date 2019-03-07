@@ -305,11 +305,8 @@ public class HttpUtil {
     	params.put("name", "taojj");
     	params.put("age", "18");
 	System.out.println(httpPost("http://localhost:8080/ModernServlet", params, "", ""));
-<<<<<<< HEAD
 // 小B同事提交
-=======
 	    //小A同事提交
->>>>>>> branch 'master' of https://github.com/MrTaozui/howTomcatWorks.git
 }
  
 }
