@@ -304,8 +304,11 @@ public class HttpUtil {
     	Map<String, String> params = new HashMap<>();
     	params.put("name", "taojj");
     	params.put("age", "18");
+
 	System.out.println(httpPost("http://localhost:8080/ModernServlet", params, "", ""));
 //本地同事提交了
+	//远程同事提交了
+
 }
  
 }
